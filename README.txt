@@ -5,9 +5,10 @@ pip install -r requirements.txt
 
 Setup database
 ====================================================================================================
+.....
 
-1. Type python setup/setup.py
-2. Type python test/run.py.
+for now sqlalchemy is in use. All meta are in the core/people/person.py file
+Of course a better installation script is needed
 
 
 How to create a new reaction
@@ -31,14 +32,4 @@ Todo
 9. Linkedin integration
 
 
-
-What robot can do already.
-====================================================================================================
-
-1. Listen and record audio from internal microphones
-2. Recognize human speech using google web services
-3. Search google
-4. Download media files from spoken wiki resource (currently local web-service)
-5. Play audio using almost any avaliable linux console players ( mplayer )
-6. Speak using speech-dispatcher espeak/festival
 
