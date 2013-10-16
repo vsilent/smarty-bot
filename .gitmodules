@@ -1,0 +1,3 @@
+[submodule "core/lib/thebigdb"]
+	path = core/lib/thebigdb
+	url = https://github.com/thebigdb/thebigdb-python.git
