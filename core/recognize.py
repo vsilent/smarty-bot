@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Recognize module
+
+Speech recognition module
+based on google service
+
 """
 
 import os
@@ -11,7 +14,6 @@ import pycurl
 import StringIO
 import simplejson as json
 #import subprocess
-from broadcast import say
 
 
 def get_audio_file():
@@ -43,20 +45,20 @@ def recognize():
 
 
 def record(device):
-    os.system('arecord -D %s -t wav -r 44000 > %s/speech.wav' % ( device , settings.APP_DIRS['app_dir']))
+    os.system('arecord -D %s -t wav -r 44000 > %s/speech.wav' % (
+        device, settings.APP_DIRS['app_dir'])
+    )
 
 
 def toflac():
+    #@todo should use memory for future not filesystem
     flac = settings.APP_DIRS['tmp_input_audio_dir'] + 'speech.flac'
     speech = get_audio_file()
     #remove previous dialog flac file
-    os.system('rm -f %s' % flac )
-    logger.debug(speech)
-    logger.debug(flac)
+    os.system('rm -f %s' % flac)
+    #logger.debug(speech)
+    #logger.debug(flac)
     os.system('%s/voice-cleanup.sh %s %s' % (settings.ROBOT_DIR, speech, flac))
-    #s = subprocess.Popen(['ffmpeg', '-i', speech, flac ] , stderr=subprocess.STDOUT, stdout=subprocess.PIPE).communicate()[0]
-    #logger.debug(s)
-    #os.system('rm -f %s' % speech )
     if not os.path.isfile(flac):
         raise 'COULD NOT CONVERT FLAC'
     return True
@@ -84,63 +86,6 @@ def recognize_by_google():
     return utterance
 
 
-def meet():
-    """docstring for meet"""
-    pass
-
-
 def finish_dialog():
     """docstring for fini"""
     pass
-
-
-def recognize_by_julius():
-    #not in use anymore because requires X11, used fifo instead
-    #bus = dbus.SessionBus()
-    #service = bus.get_object('com.optibot.julius', '/com/optibot/julius')
-    #jlisten = service.get_dbus_method('listen', 'com.optibot.julius')
-    #res = jlisten()
-    filename = os.path.join('/tmp', 'julius_fifo')
-    fifo = open(filename, 'r')
-    return fifo.readline()
-
-
-def is_yes_or_no(n=1):
-    """docstring for yes_or_no"""
-    #@todoREEEEEESSSSSSSSSSSEEEEEEEEETTTTTTT curently it's not working properly
-    #reset_julius()
-    #text = recognize_by_julius()
-    if text:
-        if text.lower() in ['yes', 'no', 'ok', 'sure']:
-            return True
-
-
-def yes_or_no(n=1):
-    """docstring for yes_or_no"""
-    #@todoREEEEEESSSSSSSSSSSEEEEEEEEETTTTTTT curently it's not working properly
-    #reset_julius()
-    #text = recognize_by_julius()
-    if text:
-        logger.debug(text)
-
-        if text.lower() in ['yes', 'no', 'ok', 'sure']:
-            return text.lower()
-
-        if text.lower() not in ['yes', 'no', 'ok', 'sure']:
-            say('Yes, or No ?')
-            #reset_julius()
-
-        n += 1
-        if n > 3:
-            return 'no'
-        yes_or_no()
-
-
-#@deprecated
-def reset_julius():
-    """julius has a python wrapper lib so we don't need this function anymore."""
-    pass
-    #if os.path.isfile('/tmp/julius_fifo'):
-        #filename = os.path.join('/tmp', 'julius_fifo')
-        #fifo = open(filename, 'r')
-        #fifo.readlines()

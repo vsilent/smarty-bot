@@ -6,7 +6,6 @@ Listen to other services which do not need text reply
 """
 #import os
 from core.config.settings import logger
-from core.brain.main import Brain
 import zmq
 
 
@@ -29,8 +28,6 @@ def react(req_obj):
                 raise TypeError
 
             logger.info('brain connector got %s through %s' % (req_obj, sock))
-            #logger.info( 'Brain connector has got new request:
-            #%s of type %s through %s'  % ( req_obj, type(req_obj), sock)  )
             sock.send_json(req_obj)
             response = sock.recv_json()
             req_obj = None

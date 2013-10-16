@@ -57,13 +57,3 @@ while True:
             sock.send_json(response)
         else:
             sock.send_json(empty)
-
-
-        #elif _obj.get('type', None) == 'response':
-            ##response = brain.react_on(_obj)
-            #if response:
-                #sock.send_json(response)
-        #else:
-            #sock.send_json(empty)
-
-

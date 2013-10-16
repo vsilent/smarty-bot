@@ -78,7 +78,7 @@ if __name__ == '__main__':
                 #jabber_proc.communicate()
                 #logger.info("process id: %s", jabber_proc.communicate())
             else:
-                logger.info('Jabber multiuser chat bot is already running, skip...')
+                logger.info('multiuser chat bot is already running, skip...')
         ## start sensor fifo output process
         #sensor1_proc = subprocess.Popen(
             #["python" ,

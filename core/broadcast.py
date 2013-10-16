@@ -18,7 +18,6 @@ def bang():
             "%salert.wav" % settings.APP_DIRS['tmp_output_audio_dir']]
     """docstring for bang"""
     try:
-        #subprocess.call(comm)
         subprocess.Popen(comm)
     except OSError as e:
         if e.errno == os.errno.ENOENT:
@@ -32,28 +31,12 @@ def bang():
 
 def say(what_to_say):
     """ use linux synthezer"""
-
     client = speechd.SSIPClient('test')
     client.set_output_module('festival')
     client.set_language('en')
     client.set_punctuation(speechd.PunctuationMode.SOME)
     client.speak(what_to_say)
     client.close()
-    #comm = ["espeak", "%s" % what_to_say]
-    #os.system( 'echo "%s" | festival --tts' % what_to_say )
-    #os.system( 'espeak -k90 -ven+11 "%s"' % what_to_say )
-    #try:
-    ##subprocess.call(comm)
-    #subprocess.Popen(comm)
-    #except OSError as e:
-        #if e.errno == os.errno.ENOENT:
-            ## handle file not found error.
-            #logger.info('Seems like play is not installed')
-            #logger.exception(e)
-            #return { 'error':'Seems like play is not installed' }
-            #else:
-                #return { 'error': e.getmessage() }
-
     return {'text': 'Saying it..'}
 
 

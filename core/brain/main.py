@@ -269,7 +269,6 @@ class Brain():
 
         #are polite words in request ? cut them
         request = self.remove_polite_words(request)
-        #logger.info('Sentense after cutting polite words: %s', request)
 
         #Noise is usually recognized as "no no no no" text
         #try to cut it from start and end
@@ -369,10 +368,7 @@ class Brain():
 
             self.set_request_as_question()
             #look if there are no reaction modules or commands by this question
-            #return self.proceed_on_reaction(request, req_obj)
             #continue search in internet or local database
-            #self.proceed_on_reaction(request)
-            #disabled by vs@webdirect.md Thu Jan 31 11:42:09 EET 2013
             return self.is_question(request)
 
         #if not recognized than try to search it by google
@@ -385,13 +381,6 @@ class Brain():
             return self.is_question(request)
         #if this is more then greeting
         else:
-            #self.response = {'text': 'Command was not recognized'}
-            #if Smarty could not recognize commands he saves all requests
-            #from client and respondes with got it
-            #Later there will be a daemon process that sorts
-            #all the client requests
-            #find the keyword in requests
-
             sender = self.req_obj.get('sender', '')
             #@todo data-sort-bot check the heap of requests, what is it, if an email whose and sort it ?
             save_users_request(sender, request)
@@ -405,11 +394,6 @@ class Brain():
                 self.response = {'text': str(e)}
             else:
                 logger.info("It may have been an ascii-encoded unicode string")
-
-            #try:
-                #self.create_new_reaction(request)
-            #except Exception as e:
-                #pass
 
             self.set_dialog_stage(0)
             return self.response
@@ -455,22 +439,6 @@ class Brain():
                 # set something like  ['ping', 'my', 'sites']
                 #self._cmd_path = path.relative().parent.split('/')
                 self._cmd_path = self._cmd_args
-            #else:
-                # @todo build suggestion
-                #path.ancestor(2).child('/reaction.py')
-
-           #do not do recursion here for now
-           ##this will stop at first found reaction
-            #for word in command_list:
-                #cmd.append(word)
-                #self._cmd_path.append(word)
-                #self._cmd_args.pop(0)
-                #is_command = False
-
-                #if os.path.isfile( #settings.APP_DIRS['brain_modules_dir'] +\
-                        #'/'.join(self._cmd_path) + '/reaction.py'):
-                    #is_command = True
-                    #break
 
         #last added
         #user defined script
@@ -653,28 +621,12 @@ class Brain():
             text = self.remove_possible_noise_words(text)
 
         logger.info('question after cleanup: %s' % text)
-
-        #confirm_obj = Confirm(text)
-        #state = confirm_obj.get_state(sentence=text)
         state = 0
-        #logger.info("State was: %d" % state)
 
         # Is this a new question ?
         if state == 0 or (state is None):
 
             logger.info("I don't know, going to search dictionary!")
-            #self.response = {'text':
-            #"I don't know, going to search in internet..."}
-            #logger.info('start confirm')
-            #os.system('mv ' + settings.APP_DIRS
-            #['tmp_input_audio_dir'] + 'speech.flac'
-            #+ ' ' + settings.APP_DIRS
-            #['tmp_input_audio_dir'] + 'last-speech.flac')
-            #if(confirmation is not None)
-            #and('yes' in confirmation.strip().lower()):
-            #confirm_obj.confirm(1)
-            #logger.info('Searching for media in internet...')
-
             link_to_audio = self.search_www_for_audio(text)
 
             downloaded = False
@@ -688,6 +640,7 @@ class Brain():
                 else:
                     logger.info("No media found")
 
+            #should be a plugin
             #answer = self.askBigDb(text)
             #if answer:
                 #self.response['text'] = answer
@@ -755,22 +708,9 @@ class Brain():
 
     @classmethod
     def search_www(self, q):
-        """this functionality should be splitted
+        """@todo this functionality should be splitted
         to plugins and multiprocessed"""
         pass
-        #at wikipedia.org
-        #self.response['wikipedia.org'] = self.react_on(
-        #{'from':'internal', 'request': 'find %s by wikipedia_org' % q})
-        ##at dictionary.com
-        #self.response['dictionary.com'] = self.react_on(
-        #{'from':'internal', 'request': 'find %s by dictionary_com' % q})
-        ##ask.com
-        #self.response['ask.com'] = self.react_on(
-        #{'from':'internal', 'request': 'find %s by ask_com' % q})
-        ##http://dic.academic.ru
-        #self.response['academic.ru'] = self.react_on(
-        #{'from':'internal', 'request': 'find %s by academic_ru' %  q})
-        #return self.response
 
     @classmethod
     def search_www_for_audio(self, text_to_search):
@@ -803,10 +743,11 @@ class Brain():
         """docstring for found_by_linux_dict"""
 
         logger.info('find definition using local linux dict... %s', text)
-        proc = subprocess.Popen(["/usr/bin/dict", text],
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE,
-                                shell=False)
+        proc = subprocess.Popen(
+            ["/usr/bin/dict", text],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            shell=False)
         txt = ''
 
         for line in proc.stdout.readlines():

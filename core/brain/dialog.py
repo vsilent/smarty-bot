@@ -15,8 +15,6 @@ def start_dialog(text):
         sentence = 'DID YOU SAY' + text.upper() + '?'
         say(sentence)
         logging.debug('start confirm')
-        #import time
-        #time.sleep(2)
         listen()
         os.system('mv ' + settings.app_dirs['tmp_input_audio_dir'] + 'speech.flac' + ' ' + settings.app_dirs['tmp_input_audio_dir'] + 'last-speech.flac')
         #confirmation = recognize_by_google()
@@ -83,5 +81,3 @@ def search_www( text_to_search ):
             return link_to_audio
 
     return False
-
-
