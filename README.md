@@ -21,9 +21,8 @@ Installation
 
 Install libs ( Ubuntu ) :
 
-sudo apt-get install python-dev
-sudo apt-get install libsdl1.2-dev
-sudo apt-get install libcurl4-gnutls-dev python-dnspython
+sudo apt-get install python-dev libsdl1.2-dev libcurl4-gnutls-dev
+python-dnspython
 
 Setup required python libs from requirements.txt
 
