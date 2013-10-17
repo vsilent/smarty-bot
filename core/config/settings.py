@@ -133,47 +133,6 @@ DEVICES = {
 }
 
 
-DATABASES = {
-    'default': {
-        'engine': 'sqllite',
-        'options': {
-            'charset': "utf8",
-            'init_command':
-            'SET storage_engine=INNODB;'
-        },
-        'name': 'robot',
-        'user': 'root',
-        'password': '',
-        'host': 'localhost',
-        'port': '',
-        'path': APP_DIRS['app_dir'] + 'db/'
-    },
-    'mysql': {
-        'engine': 'mysql',
-        'options' : {
-            'charset': "utf8",
-            'init_command':
-            'SET storage_engine=INNODB;'
-        },
-        'name': 'robot',
-        'user': 'root',
-        'password': '',
-        'host': 'localhost',
-        'port': '',
-    },
-    'mongo': {
-        'engine': 'mongodb',
-        'name': 'robot',
-        'user': 'root',
-        'password': '',
-        'host': 'localhost',
-        'port': 27017,
-    }
-}
-
-
-
-
 #greetings must be a tuple
 #will be moved to separate dictionary or refactored later
 GREETINGS = (

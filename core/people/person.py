@@ -174,7 +174,6 @@ profile_relation_table = Table(
 
 Index('id', profile_relation_table.c.id)
 Index('uuid', profile_relation_table.c.uuid)
-Index('related_account', profile_relation_table.c.related_account)
 
 profile_other_name_table = Table(
     'account_profile_other_name',
@@ -266,7 +265,6 @@ device_table = Table(
     mysql_engine='MyISAM',
     mysql_charset='utf8')
 Index('id', device_table.c.id, unique=True)
-Index('serial', device_table.c.serial, unique=True)
 Index('serial', device_table.c.serial, unique=True)
 Index('name', device_table.c.name, unique=True)
 Index('model', device_table.c.model, unique=True)
