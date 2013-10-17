@@ -41,12 +41,12 @@ class Reaction:
         """default method"""
 
         response = "Just type any information that you want me to keep."
-        response += "type: *find wifi* to browse wifi passwords"
+        response += "type: *find ....* if you want to search for text that was added by yourself previously"
         response += "\ntype: *register hours* if you want me to save your working hours automatically."
         response += "\nYou can ask me to remind about something with command: *remind me every 50 minutes with message hey buddy don't forget to fill the project timesheet!*"
         #response += "\nRemind command format is: *remind me after|each|every|in|before|during numeric(1,2,3 .. 100)|words(one,two.. ten etc.) minutes|mins|hours|days|years with|by \"hey buddy don't forget to fill the project timesheet!\"*"
-        #response += "\nYou can also search for a command: *find command ....(any command)*"
-        #response += "\nMore information can be found at http://www.smarty-bot.com/commands"
+        #response += "\nYou can also search for a command: *find command ....(any command)*"  not ready
+        #response += "\nMore information can be found at http://www.smarty-bot.com/commands" not ready
 
         if self.req_from == 'jabber':
             todo = {'text': response, 'jmsg': response, 'type': 'response'}
