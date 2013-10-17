@@ -1,4 +1,5 @@
 core/tmp
+core/config/settings.py
 *.py[cod]
 *.pyc
 nohup.out
