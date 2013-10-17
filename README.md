@@ -29,3 +29,11 @@ Login to your personal gtalk account and find bot's gtalk contact and add it.
 Now you can say hi to it
 
 
+Creating of a reaction
+===========
+
+It's easy,  just tell to bot  create a new reaction "say hello to me".
+Bot will create a new script and place it under core/brain/say/hello/to/me/reaction.py
+where you can add any python code you want.
+
+Next time say  " say hello to me" and your function will be executed
