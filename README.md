@@ -32,8 +32,11 @@ Now you can say hi to it
 Creating of a reaction
 ===========
 
-It's easy,  just tell to bot  create a new reaction "say hello to me".
-Bot will create a new script and place it under core/brain/say/hello/to/me/reaction.py
+It's easy,  just send a message to bot like: <br> <code>create a new reaction "say hello to me"</code>
+Bot will create all necessary directories and place the new script
+under <code>core/brain/say/hello/to/me/reaction.py</code><br>
 where you can add any python code you want.
 
-Next time say  " say hello to me" and your function will be executed
+After you put your cool stuff there,
+save and ask bot:  <code>say hello to me </code>
+Your functionality will be executed.
