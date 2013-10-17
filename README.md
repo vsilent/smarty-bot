@@ -1,7 +1,8 @@
 smarty-bot
 ==========
 
-Smarty-bot is a personal bot which is aimed to keep well organized scripts and execute them easy.
+Smarty-bot is a personal bot which is aimed to organize well small python scripts and execute them easy.
+<br>
 
 It is also for those who just started to learn programming in Python.<br>
 For now it is just a very simple chat bot which can interpret some natural language commands into python script execution.
