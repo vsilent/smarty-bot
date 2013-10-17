@@ -13,3 +13,19 @@ This is not a ready for use product, it is still under development!<br><br>
 Some more detailed info can be found at http://smarty-bot.com in russian language.<br>
 
 For more questions write to info at smarty-bot.com
+
+
+Installation
+===========
+
+1. Register a new account for you bot at gmail.com, for example  mysuperbot@gmail.com
+2. Create mysql database
+3. Configure core/config.settings.py
+4. Create database structure:  <code>python core/people/person.py</code>
+
+Run app:   <code>python core/init.py</code>
+
+Login to your personal gtalk account and find bot's gtalk contact and add it.
+Now you can say hi to it
+
+
