@@ -19,6 +19,18 @@ For more questions write to info at smarty-bot.com
 Installation
 ===========
 
+Install libs ( Ubuntu ) :
+
+sudo apt-get install python-dev
+sudo apt-get install libsdl1.2-dev
+sudo apt-get install libcurl4-gnutls-dev python-dnspython
+
+Setup required python libs from requirements.txt
+
+<code>pip install -r requirements.txt</code>
+
+
+
 1. Register a new account for you bot at gmail.com, for example  mysuperbot@gmail.com
 2. Create mysql database
 3. Configure core/config.settings.py
@@ -33,7 +45,7 @@ Now you can say hi to it
 Creating of a reaction
 ===========
 
-It's easy,  just send a message to bot like: <br> <code>create a new reaction "say hello to me"</code>
+It's easy,	just send a message to bot like: <br> <code>create a new reaction "say hello to me"</code>
 Bot will create all necessary directories and place the new script
 under <code>core/brain/say/hello/to/me/reaction.py</code><br>
 where you can add any python code you want.
