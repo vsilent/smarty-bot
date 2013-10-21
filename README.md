@@ -22,7 +22,7 @@ Installation
 Install libs ( Ubuntu ) :
 
 sudo apt-get install python-dev libsdl1.2-dev libcurl4-gnutls-dev
-python-dnspython
+python-dnspython libxlt1-dev libxml2-devo swig portaudio19-dev
 
 Setup required python libs from requirements.txt
 
