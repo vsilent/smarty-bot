@@ -66,6 +66,12 @@ CONFIG_DIR = ROBOT_DIR.child('core', 'config')
 TMP_DIR = '/tmp'
 DEMO_MUSIC_DIR = ROBOT_DIR + '/music/'
 
+
+FREEBASE = {
+    "api_key": ''
+}
+
+
 # Make a global logging object.
 logging.basicConfig(filename='%s/message.log' % LOG_DIR, level=logging.DEBUG)
 logger = logging.getLogger("logfun")
