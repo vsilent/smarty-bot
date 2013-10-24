@@ -61,3 +61,5 @@ unittest2==0.5.1
 zmqpy==0.3.2
 pyasn1==0.1.7
 pyasn1-modules==0.0.5
+sure==1.2.2
+httpretty==0.6.0
