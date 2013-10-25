@@ -7,7 +7,7 @@ from core.brain.hello import Reaction
 This is just a sample file you can use
 for creating a copy/alias of a reaction
 
-1.  Create a directory: mkdir core/brain/good/day/
+1.  Create a directory: mkdir core/brain/good/morning/
 
 2.  Copy this file and rename it to reaction.py.
     You will have something like: core/brain/good/morning/reaction.py
