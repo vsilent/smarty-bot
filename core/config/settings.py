@@ -247,6 +247,13 @@ POLITE = (
 #these are simple commands that will be executed by
 #first word in requested sentense like "say hello"
 
+#  This tuple still exists because I did not have time to make it better.
+#  It contains commands that have arguments.
+#  Example: after "delete link" an argument
+#  should follow, like: delete link mysite.com
+#  If you have any other elegant and simple solution which may replace 
+#  this ugly dictionary please post a comment on github or fork.
+#
 EMBEDDED_COMMANDS = (
     MY_NAME
     , 'hi'
@@ -282,9 +289,13 @@ EMBEDDED_COMMANDS = (
     , 'my zip code is'
     , 'my post code is'
     , 'my postcode is'
-    , 'add site'
-    , 'add my site'
+    , 'add site url'
+    , 'add my site url'
     , 'add url'
+    , 'add link'
+    , 'add new url'
+    , 'add new link'
+    , 'add new site url'
     , 'add user'
     , 'add new user'
     , 'create user'
@@ -347,8 +358,12 @@ EMBEDDED_COMMANDS = (
     , 'ping me'
     , 'alert me'
     , 'who is'
-    , 'delete link'  #  because after delete link a param may follow  like: delete link mysite.com
-    , 'delete'
+    , 'delete link'  #  because after delete link an argument follows, like: delete link mysite.com
+    , 'delete url'
+    , 'delete site url'
+    , 'remove url'
+    , 'remove site url'
+    , 'remove link'
     , 'remove'
     , 'find'
 )

@@ -192,19 +192,20 @@ if __name__ == '__main__':
     # Setup the MUCBot and register plugins. Note that while plugins may
     # have interdependencies, the order in which you register them does
     # not matter.
-    room = 'optimum'
+    room = settings.JABBER_COMPANY_ROOM
     nick = settings.MY_NAME
-    print('connect ' + room + ' using ' + nick)
+    #print('connect ' + room + ' using ' + nick)
     xmpp = MUCBot(
-        settings.MY_ACCOUNTS['gmail']['email'],
-        settings.MY_ACCOUNTS['gmail']['password'], room, nick)
+        settings.JABBER_COMPANY_BOT['email'],
+        settings.JABBER_COMPANY_BOT['password'], room, nick)
 
     xmpp.register_plugin('xep_0030')  # Service Discovery
     xmpp.register_plugin('xep_0045')  # Multi-User Chat
     xmpp.register_plugin('xep_0199')  # XMPP Ping
 
     # Connect to the XMPP server and start processing XMPP stanzas.
-    if xmpp.connect():
+    if xmpp.connect((settings.JABBER_COMPANY_SERVER,
+                     int(settings.JABBER_COMPANY_SERVER_PORT))):
         # If you do not have the dnspython library installed, you will need
         # to manually specify the name of the server if it does not match
         # the one in the JID. For example, to use Google Talk you would
@@ -213,6 +214,6 @@ if __name__ == '__main__':
         # if xmpp.connect(('talk.google.com', 5222)):
         #     ...
         xmpp.process(block=True)
-        print("Done")
+        #print("Done")
     else:
         print("Unable to connect.")

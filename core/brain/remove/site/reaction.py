@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from core.brain.delete.url.reaction import Reaction
+from core.brain.delete.link.reaction import Reaction
 
 
 class ReactionCopy(Reaction):
