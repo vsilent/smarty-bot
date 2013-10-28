@@ -31,8 +31,8 @@ Setup required python libs from requirements.txt
 
 
 1. Register a new account for you bot at gmail.com, for example  mysuperbot@gmail.com
-2. Create mysql database
-3. Configure core/config.settings.py
+2. Create mysql database, like: mysuperbot
+3. Configure core/config/settings.py
 4. Create database structure:  <code>python core/people/person.py</code>
 
 Run app:   <code>python core/init.py</code>
