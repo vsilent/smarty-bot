@@ -41,7 +41,8 @@ Setup required python libs from requirements.txt
 1. Register a new account for you bot at gmail.com, for example  mysuperbot@gmail.com
 2. Create mysql database, like: mysuperbot
 3. Configure core/config/settings.py
-4. Create database structure:  <code>python core/people/person.py</code>
+4. Set write permissions to var directory: chmod guo+w -R core/var/log/
+5. Create database structure:  <code>python core/people/person.py</code>
 
 Run app:   <code>python core/init.py</code>
 
@@ -52,7 +53,7 @@ Now you can say hi to it
 Creating of a reaction
 ===========
 
-It's easy,  just send a message to bot like: <br> <code>create a new reaction "say hello to me"</code>
+It's easy,	just send a message to bot like: <br> <code>create a new reaction "say hello to me"</code>
 Bot will create all necessary directories and place the new script
 under <code>core/brain/say/hello/to/me/reaction.py</code><br>
 where you can add any python code you want.

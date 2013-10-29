@@ -71,6 +71,11 @@ FREEBASE = {
     "api_key": ''
 }
 
+if not os.path.exists(LOG_DIR):
+    os.makedirs(LOG_DIR)
+
+#try to create log file
+file = open('%s/message.log' % LOG_DIR, 'w+')
 
 # Make a global logging object.
 logging.basicConfig(filename='%s/message.log' % LOG_DIR, level=logging.DEBUG)
@@ -251,7 +256,7 @@ POLITE = (
 #  It contains commands that have arguments.
 #  Example: after "delete link" an argument
 #  should follow, like: delete link mysite.com
-#  If you have any other elegant and simple solution which may replace 
+#  If you have any other elegant and simple solution which may replace
 #  this ugly dictionary please post a comment on github or fork.
 #
 EMBEDDED_COMMANDS = (
