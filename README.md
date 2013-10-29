@@ -21,8 +21,16 @@ Installation
 
 Install libs ( Ubuntu ) :
 
+<code>
 sudo apt-get install python-dev libsdl1.2-dev libcurl4-gnutls-dev
-python-dnspython libxslt1-dev libxml2-dev swig portaudio19-dev
+python-dnspython libxslt1-dev libxml2-dev swig portaudio19-dev libmysqlclient-dev
+python-m2crypto libffi-dev
+</code>
+
+if you don't have pip installed:
+<code>
+sudo apt-get install python-pip
+</code>
 
 Setup required python libs from requirements.txt
 
@@ -44,7 +52,7 @@ Now you can say hi to it
 Creating of a reaction
 ===========
 
-It's easy,	just send a message to bot like: <br> <code>create a new reaction "say hello to me"</code>
+It's easy,  just send a message to bot like: <br> <code>create a new reaction "say hello to me"</code>
 Bot will create all necessary directories and place the new script
 under <code>core/brain/say/hello/to/me/reaction.py</code><br>
 where you can add any python code you want.
