@@ -22,8 +22,8 @@ Installation
 Install libs ( Ubuntu ) :
 
 <code>
-sudo apt-get install python-dev libsdl1.2-dev libcurl4-gnutls-dev
-python-dnspython libxslt1-dev libxml2-dev swig portaudio19-dev libmysqlclient-dev
+sudo apt-get install python-dev libsdl1.2-dev libcurl4-gnutls-dev <br>
+python-dnspython libxslt1-dev libxml2-dev swig portaudio19-dev libmysqlclient-dev<br>
 python-m2crypto libffi-dev
 </code>
 
