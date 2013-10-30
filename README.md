@@ -1,7 +1,7 @@
-smarty-bot
+SmartyBot
 ==========
 
-Smarty-bot is a personal bot which is aimed to organize well small python scripts and execute them easy.
+SmartyBot is a personal bot which is aimed to organize well small python scripts and execute them easy.
 <br>
 
 It is also for those who just started to learn programming in Python.<br>
@@ -11,9 +11,9 @@ In the future it is going to be more than just a chat bot but transform natural 
 This is not a ready for use product, it is still under development!<br><br>
 
 
-Some more detailed info can be found at http://smarty-bot.com in russian language.<br>
+Some more detailed info can be found at http://www.smartybot.com in russian language.<br>
 
-For more questions write to info at smarty-bot.com
+For more questions write to < support at smartybot.com >
 
 
 Installation
@@ -31,6 +31,17 @@ if you don't have pip installed:
 <code>
 sudo apt-get install python-pip
 </code>
+<br>
+
+<br>
+Try:
+<code>
+pip install SmartyBot
+<code>
+
+<br>
+or<br>
+<br>
 
 Setup required python libs from requirements.txt
 
