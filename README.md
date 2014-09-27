@@ -1,19 +1,15 @@
 SmartyBot
 ==========
 
-SmartyBot is a personal bot which is aimed to organize well small python scripts and execute them easy.
+SmartyBot is a xmpp (gtalk) bot written in python plus 0MQ lib. 
 <br>
 
+
 It is also for those who just started to learn programming in Python.<br>
-For now it is just a very simple chat bot which can interpret some natural language commands into python script execution.
-In the future it is going to be more than just a chat bot but transform natural language commands into real actions ( turn on lights, making coffee :) ) . <br>
+For now it is just a very simple chat bot which can execute natural language commands.
+In the future it is going to be more than just a chat bot but execute natural language commands into real actions ( turn on lights, make coffee, open door, remind me etc. ) . <br>
+Plugins of other python bots out there can be imported easily and be organized nicely.
 
-This is not a ready for use product, it is still under development!<br><br>
-
-
-Some more detailed info can be found at http://www.smartybot.com in russian language.<br>
-
-For more questions write to < support at smartybot.com >
 
 
 Installation
@@ -72,3 +68,6 @@ where you can add any python code you want.
 After you put your cool stuff there,
 save and ask bot:  <code>say hello to me </code>
 Your functionality will be executed.
+
+More details at http://www.smartybot.com but in russian language only, yet.<br>
+
