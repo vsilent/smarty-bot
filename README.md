@@ -12,6 +12,15 @@ Plugins of other python bots out there can be imported easily and be organized n
 
 
 
+
+
+Demo
+===========
+
+Add webdirect.bot @t gmail.com  to your test hangouts account, and write a "hello". ( No spam is quaranteed )
+
+
+
 Installation
 ===========
 
