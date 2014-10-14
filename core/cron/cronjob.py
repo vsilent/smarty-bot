@@ -22,6 +22,8 @@ parser.add_option( '-u', '--uuid', action='store', dest='uuid' , help = 'uuid of
 parser.add_option( '-e', '--email', action='store', dest='email' , help = 'email of an account' )
 (opts, args) = parser.parse_args()
 
+if not opts:
+    parser.print_help()
 request = {'request' : opts.cmd
            ,'from' : 'cron'
            ,'cmd_path' : opts.cmd.split()

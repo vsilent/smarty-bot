@@ -1,33 +1,21 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-#import multiprocessing
-#from multiprocessing import Process, Queue
-#import os
-#import sys
-#import dbus
-#import tempfile
-#from core.device.head.sensor.sound.source_direction import read_sensor_data
-#from core.main import main
 import sys
 import os
+from core.config import settings
+from core.config.settings import logger
+import subprocess
+import signal
 
 app_dir = os.path.normpath(os.path.join(os.getcwd(),
                                         os.path.dirname(__file__)))
 sys.path.append(os.path.dirname(app_dir))
 sys.path.append(os.path.dirname(app_dir) + '/../')
 
-from core.config import settings
-from core.config.settings import logger
-import subprocess
-import signal
-
-
 
 def process_exists(process):
     """docstring for process_exists"""
-    #import commands
-    #output = commands.getoutput('pidof %s |wc -w' % process)
     pid = False
     g = os.popen("ps -e -o pid,command")
     for line in g.readlines():
@@ -36,23 +24,12 @@ def process_exists(process):
             break
     return pid
 
-
 if __name__ == '__main__':
     jobs = []
 
     try:
-
-        #start brain listener at socket
-        #start main process
-        #p = Process(target=Brain.listen())
-        #jobs.append(p)
-        #p.daemon = True
-        #p.start()
-        #julius_proc.communicate()
-        #logger.debug(julius_proc.communicate()[0])
-
         if settings.JABBER_ENABLED:
-            #start jabber
+            # start jabber
             jpid = process_exists('jabber/connect.py')
             if not jpid:
                 logger.info('Start jabber connector subprocess '
@@ -62,25 +39,9 @@ if __name__ == '__main__':
                     ["python", "%s/core/lib/jabber/connect.py"
                      % settings.ROBOT_DIR]
                 )
-                #jabber_proc.communicate()
-                #logger.info("process id: %s", jabber_proc.communicate())
             else:
                 logger.info('Jabber connector is already running, skip...')
 
-            jmpid = process_exists('jabber/mucbot.py')
-
-            if not jmpid:
-                logger.info('Start jabber multi user chat bot subprocess '
-                            + "%s/core/lib/jabber/mucbot.py"
-                            % settings.ROBOT_DIR)
-                mjabber_proc = subprocess.Popen(
-                    ["python", "%s/core/lib/jabber/mucbot.py"
-                     % settings.ROBOT_DIR]
-                )
-                #jabber_proc.communicate()
-                #logger.info("process id: %s", jabber_proc.communicate())
-            else:
-                logger.info('multiuser chat bot is already running, skip...')
         ## start sensor fifo output process
         #sensor1_proc = subprocess.Popen(
             #["python" ,
@@ -105,6 +66,25 @@ if __name__ == '__main__':
             #logger.info("%s", julius_proc.communicate())
         #else:
             #logger.info('Julius is already running, skip...')
+        sid = process_exists('core/scheduler/at.py')
+        if not sid:
+            logger.info("Start scheduler subprocess")
+            sched_proc = subprocess.Popen(
+                ["python", "%s/core/scheduler/at.py" % settings.ROBOT_DIR]
+            )
+        else:
+            logger.info("Scheduler subprocess already running, skip...")
+
+        scid = process_exists('core/scheduler/connect.py')
+        if not scid:
+            logger.info("Start scheduler connector subprocess")
+            schedc_proc = subprocess.Popen(
+                ["python", "%s/core/scheduler/connect.py" % settings.ROBOT_DIR]
+            )
+        else:
+            logger.info("Scheduler connector subprocess already running, skip...")
+
+
         opid = process_exists('core/output.py')
         if not opid:
             logger.info("Start output subprocess")
@@ -164,21 +144,40 @@ if __name__ == '__main__':
             ["python", "%s/core/brain/ask.py"
                 % settings.ROBOT_DIR]
         )
+
+        #if settings.WEBSOCK_ENABLED:
+            #wspid = process_exists('http/app.py')
+            #if not wspid:
+                #logger.info('Start http subprocess '
+                            #+ "%s/http/app.py"
+                            #% settings.ROBOT_DIR)
+                #web_proc = subprocess.Popen(
+                    #["python", "%s/http/app.py"
+                     #% settings.ROBOT_DIR]
+                #)
+            #else:
+                #logger.info('web connector is already running, skip...')
+
         #run main process
         main_proc.communicate()
 
+
     except KeyboardInterrupt:
-        #dpid = process_exists('source_direction')
-        #logger.info( 'Stop sound source detector %s ', dpid )
-        #os.kill(int(dpid), signal.SIGHUP)
+        # dpid = process_exists('source_direction')
+        # logger.info( 'Stop sound source detector %s ', dpid )
+        # os.kill(int(dpid), signal.SIGHUP)
+
+        sid = process_exists('scheduler/at.py')
+        logger.info('Terminate scheduller connector process  %s ', jpid)
+        os.kill(int(sid), signal.SIGHUP)
+
+        scid = process_exists('scheduler/connect.py')
+        logger.info('Terminate scheduler connector process  %s ', jpid)
+        os.kill(int(scid), signal.SIGHUP)
 
         jpid = process_exists('jabber/connect.py')
         logger.info('Terminate jabber connector process  %s ', jpid)
         os.kill(int(jpid), signal.SIGHUP)
-
-        jmpid = process_exists('jabber/mucbot.py')
-        logger.info('Terminate jabber multiuser chat bot process  %s ', jmpid)
-        os.kill(int(jmpid), signal.SIGHUP)
 
         jupid = process_exists('julius/connect.py')
         logger.info('Terminate julius connector process %s ', jupid)

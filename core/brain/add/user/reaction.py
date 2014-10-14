@@ -59,16 +59,17 @@ class Reaction:
         if profile.type == 'admin' and self.req_from == 'jabber':
             if name:
                 logger.info('new user %s' % name)
-                exists = sess.query(Profile).filter(and_(Profile.first_name == name[0],
-                                                         Profile.last_name == name[1])).all()
+                exists = sess.query(Profile).filter(
+                    and_(Profile.first_name == name[0],
+                         Profile.last_name == name[1])).all()
                 user = {}
 
                 if not exists:
                     try:
                         user['first_name'] = name[0]
                         user['last_name'] = name[1]
+                        user['email'] = name[2]
                         add_profile(user)
-                        #user['email'] = details[]
 
                     except Exception as e:
                         sess.rollback()
@@ -79,8 +80,10 @@ class Reaction:
                     response = 'looks like %s is already exists' % name
 
             else:
-                response = 'Hmm  could not parse name, \
-                        can you add it like this:  add user John Smith' % name
+                response = """
+                Hmm  could not parse name,
+                can you add it like this:
+                    add user John Smith john.smith@gmail.com"""
 
         if self.req_from == 'jabber':
             todo = {'text': response, 'jmsg': response, 'type': 'response'}

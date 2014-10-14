@@ -2,10 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import nmap                         # import nmap.py module
-from core.broadcast import say, bang
 from core.config.settings import logger
-from core.config import settings
-from core.lib.jabber.send_msg import SendMsgBot
 from core.people.person import Profile, Session
 
 
@@ -21,8 +18,6 @@ class Reaction:
     @classmethod
     def __init__(self, *args, **kwargs):
         """ original request string """
-        #logger.info(args)
-        #logger.info(kwargs)
         logger.info(kwargs.get('req_obj'))
 
         #get request object

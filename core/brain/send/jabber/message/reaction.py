@@ -8,7 +8,7 @@ Description:
 from core.broadcast import say, bang
 from core.config.settings import logger
 from core.config import settings
-from core.lib.jabber.send_msg import SendMsgBot
+from core.lib.jabber.connect import SendMsgBot
 from core.people.person import Profile, Session
 
 

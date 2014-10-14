@@ -30,20 +30,17 @@ class Reaction:
 
         self.response = ''
 
-        """ original request string """
-        self.request = request
-
     @classmethod
     def continue_dialog(self):
-        """ False will stop dialog after processing run() method  and start new from begining
+        """ False will stop dialog after processing run() method and start new from begining
             otherwise will continue to store request
         """
         return True
 
     #this method will be executed by default
     @classmethod
-    def run(self, request):
-        """default method that will be executed by /core/brain/main.py and receives request string"""
+    def run(self):
+        """default method that will be executed by /core/brain/main.py"""
         import subprocess
         import logging
         from core.config import settings

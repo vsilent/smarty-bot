@@ -11,6 +11,7 @@ from core.people.person import Profile, ProfileRequest, Session
 from core.config.settings import REDIS
 import redis
 from core.people.person import update_list_from_jabber
+from sqlalchemy import and_
 
 
 def search_users_request(request, uuid):
@@ -39,20 +40,26 @@ def search_users_request(request, uuid):
             Profile).filter(Profile.uuid == uuid).one()
 
         #read for all for now
-        allowed_for_read = True
+        allowed_to_read_all = True
 
         #here I need to know request to be public or not
         if profile.type == 'admin':
-            allowed_for_read = True
-
-        if not allowed_for_read:
-            return False
+            allowed_to_read_all = True
 
         if existing:
             return existing
         else:
-            requests = sess.query(ProfileRequest).filter(
-                ProfileRequest.request.like('%' + request + '%')).all()
+            if allowed_to_read_all:
+                requests = sess.query(ProfileRequest).filter(
+                    ProfileRequest.request.like('%' + request + '%')).all()
+            else:
+                requests = sess.query(ProfileRequest).filter(
+                    and_(
+                        ProfileRequest.uuid == uuid,
+                        ProfileRequest.request.like('%' + request + '%')
+                    )
+                ).all()
+
             response = [req.request for req in requests]
             response = "\n".join(response)
 
@@ -73,8 +80,12 @@ def save_users_request(sender, text):
         if email:
             update_list_from_jabber({email})
             #find user profile by primary email
-            profile = sess.query(Profile).filter(
-                Profile.email == email).one()
+            try:
+                profile = sess.query(Profile).filter(
+                    Profile.email == email).one()
+            except Exception as e:
+                logger.exception(e)
+                return False
 
     if not profile:
         return False

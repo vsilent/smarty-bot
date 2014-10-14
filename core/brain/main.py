@@ -137,6 +137,7 @@ class Brain():
     req_obj = {}
     request = ''
     response = {}
+    context = None
     _dialog_stage = None
     _request_processed = False
     _continue_dialog = False
@@ -147,6 +148,8 @@ class Brain():
     _cmd_path = []
     _response = None
     cmd_stack = []
+#context argiments
+    cmd_args_stack = []
     _initiator = None
     _utils = Utils()
     sockets = {'output': '', 'worker': '', 'master': ''}

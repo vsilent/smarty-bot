@@ -39,14 +39,16 @@ class Reaction:
     #def run(self):
         #"""default method"""
 
-        #if request.startswith(settings.GREETINGS) or(request.startswith('hi') and 'jabber' == self._initiator):
+        #if request.startswith(settings.GREETINGS)
+        #or(request.startswith('hi') and 'jabber' == self._initiator):
             #self.set_dialog_stage(1)
             ##try to remove greeting
             #for word in settings.GREETINGS:
                 #if word in request:
                     #request = request.replace(word, '')
                     #break
-            #self.response = {'text': 'Hi, any command ? type "help"', 'continue': 1, 'type': 'response'}
+            #self.response = {'text': 'Hi, any command ? type "help"',
+            #'continue': 1, 'type': 'response'}
             #self.set_request_as_greeting()
 
             #if self._initiator == 'julius':
@@ -80,6 +82,9 @@ class Reaction:
 
         if has_req:
             args = filter(lambda word: word not in ['!', ',', '.', '..'], res)
+
+        if self.request.strip() == 'hey there':
+            has_req = None
 
         if not has_req:
             response = 'Hi, any command? type "help"'

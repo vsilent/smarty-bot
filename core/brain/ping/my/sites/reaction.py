@@ -84,7 +84,7 @@ from core.config import settings
 from core.config.settings import logger
 from core.utils.network.ping import pinger
 from core.people.person import Profile, ProfileLink, Session
-from core.lib.jabber.send_msg import SendMsgBot
+from core.lib.jabber.connect import SendMsgBot
 
 
 class Reaction:
@@ -166,8 +166,13 @@ class Reaction:
         if self.req_from == 'cron':
             todo = {'text': response, 'jmsg': response, 'type': 'response'}
             if at_least_one_host_is_down:
-                logger.info('Sending cron notification to user.')
-                xmpp = SendMsgBot(settings.MY_ACCOUNTS['gmail']['email'], settings.MY_ACCOUNTS['gmail']['password'], profile.email, response)
+                # logger.info('Sending cron notification to user.')
+                xmpp = SendMsgBot(
+                    settings.MY_ACCOUNTS['gmail']['email'],
+                    settings.MY_ACCOUNTS['gmail']['password'],
+                    profile.email,
+                    response
+                )
 
                 # Connect to the XMPP server and start processing XMPP stanzas.
                 if xmpp.connect():

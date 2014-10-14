@@ -80,11 +80,7 @@ Author:
 Description:
 '''
 from core.broadcast import say, bang
-from core.config import settings
-from core.config.settings import logger
-from core.utils.network.ping import pinger
 from core.people.person import Profile, ProfileLink, Session
-from core.lib.jabber.send_msg import SendMsgBot
 
 
 class Reaction:
@@ -98,17 +94,14 @@ class Reaction:
     @classmethod
     def __init__(self, *args, **kwargs):
         """ original request string """
-        #logger.info(args)
-        #logger.info(kwargs)
-        #logger.info(kwargs.get('req_obj'))
 
-        #get request object
+        # get request object
         self.req_obj = kwargs.pop('req_obj')
 
-        #request word sequence
+        # request word sequence
         self.request = self.req_obj.get('request', '')
 
-        #request received from (julius, jabber any other resources)
+        # request received from (julius, jabber any other resources)
         self.req_from = self.req_obj.get('from', '')
 
         self.response = ''
@@ -121,17 +114,17 @@ class Reaction:
         sess = Session()
         sender = self.req_obj.get('sender', '')
 
-        #exctract sender email
+        # exctract sender email
         if sender:
             email = sender.split('/')[0]
 
         uuid = self.req_obj.pop('uuid', '')
 
         if email:
-            #find user profile by primary email
+            # find user profile by primary email
             profile = sess.query(Profile).filter(Profile.email == email).one()
         elif uuid:
-            #find user profile by uuid
+            # find user profile by uuid
             profile = sess.query(Profile).filter(Profile.uuid == uuid).one()
 
         hs = sess.query(ProfileLink).filter(

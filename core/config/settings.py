@@ -46,6 +46,18 @@ LINKEDIN = {
     'return_url': 'http://www.smarty-bot.com'
 }
 
+REDMINE = {
+    'url': '',
+    'key': '',
+    'username': '',
+    'password': ''
+}
+
+SUGARCRM = {
+    'url': 'h',
+    'username': '',
+    'password': ''
+}
 #database
 DB = 'mysql+mysqldb://root@localhost/smarty'
 
@@ -109,6 +121,7 @@ multiprocessing.log_to_stderr(logging.DEBUG)
 
 SPEECH_RECOGNITION_ENABLED = False
 JABBER_ENABLED = True
+WEBSOCK_ENABLED = True
 
 APP_DIRS = {
     'config_dir': CONFIG_DIR
@@ -244,7 +257,9 @@ POLITE = (
     'can you please',
     'can you tell me',
     'could you tell me',
-    'i wonder if'
+    'i wonder if',
+    MY_NAME,
+    MY_NAME.lower()
 )
 
 #actually this is the weak place in command recognition mechanism
@@ -339,6 +354,7 @@ EMBEDDED_COMMANDS = (
     , 'inform me on'
     , 'inform me next'
     , 'inform me tomorrow'
+    , 'invite to gtalk'
     , 'notify me every'
     , 'notify me each'
     , 'notify me in'
@@ -363,6 +379,7 @@ EMBEDDED_COMMANDS = (
     , 'ping me'
     , 'alert me'
     , 'who is'
+    , "whois"
     , 'delete link'  #  because after delete link an argument follows, like: delete link mysite.com
     , 'delete url'
     , 'delete site url'
@@ -371,4 +388,30 @@ EMBEDDED_COMMANDS = (
     , 'remove link'
     , 'remove'
     , 'find'
+    )
+
+MSG_ME = (
+    'remind me with message',
+    'update me with message',
+    'notify me with message',
+    'alert me with message',
+    'message me with',
+    'msg me with',
+    'update me with ',
+    'notify me with',
+    'alert me with',
+    'with message',
+    'with msg',
+    'remind with',
+    'update with',
+    'alert with',
+    'send me',
+    'with message'
+    'with msg'
+    'with txt'
+    'with text'
+    'with'
+    'by'
+    'to',
+    'of',
 )

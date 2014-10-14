@@ -5,6 +5,7 @@ core/config/settings.py
 nohup.out
 *.log
 venv
+env
 core/var/log/messages.log
 uploads
 build
@@ -41,3 +42,5 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
+.ropeproject
+core/lib/thebigdb

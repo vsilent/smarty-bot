@@ -762,6 +762,8 @@ def update_list_from_jabber(_dict):
 
     try:
         for u in _dict:
+            if u.startswith('private-chat'):
+                continue
             profile['email'] = u
             exists = sess.query(Profile).filter(Profile.email == u).all()
             #logger.info('u %s' % type(u))

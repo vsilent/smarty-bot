@@ -59,6 +59,9 @@ class Reaction:
         # should be replaced later with one replacement
         req = self.request.replace('add link ', '', 1)
         req = self.request.replace('add site ', '', 1)
+        req = self.request.replace('register site ', '', 1)
+        req = self.request.replace('register link ', '', 1)
+        req = self.request.replace('register url ', '', 1)
 
         url = re.search("(?P<url>https?://[^\s]+)", req).group("url")
         logger.info('got %s' % url)
