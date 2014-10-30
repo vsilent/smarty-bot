@@ -4,21 +4,20 @@
 """
 Listen to other services which do not need text reply
 """
-#import os
 from core.config.settings import logger
 import zmq
 
 
-global sock
+global brainsock
 context = zmq.Context()
-sock = context.socket(zmq.REQ)
-#we will send commands to
-sock.connect('ipc:///tmp/smarty-brain')
+brainsock = context.socket(zmq.REQ)
+# we will send commands to
+brainsock.connect('ipc:///tmp/smarty-brain')
 
 
 def react(req_obj):
     """docstring for react"""
-    global sock
+    global brainsock
 
     while True:
         if req_obj:
@@ -27,9 +26,11 @@ def react(req_obj):
                             'object like  {"text": "some", "jmsg": "any"} ')
                 raise TypeError
 
-            logger.info('brain connector got %s through %s' % (req_obj, sock))
-            sock.send_json(req_obj)
-            response = sock.recv_json()
+            logger.info('brain connector got %s through %s' % (
+                req_obj, brainsock
+            ))
+            brainsock.send_json(req_obj)
+            response = brainsock.recv_json()
             req_obj = None
             logger.info('Response from brain connector was : %s' % response)
             return response

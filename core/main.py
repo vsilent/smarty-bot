@@ -5,31 +5,45 @@ from multiprocessing import Process
 from core.config import settings
 from core.brain.main import worker
 from core.config.settings import logger
+import atexit
 import zmq
+import sys
 
 
-"""start brain listener, which listens to a brain connector socket"""
-context = zmq.Context()
-jsock = context.socket(zmq.REP)
-jsock.bind('ipc:///tmp/smarty-jabber')
-
+if settings.JABBER_ENABLED:
+    jcontext = zmq.Context()
+    jsock = jcontext.socket(zmq.REP)
+    jsock.bind('ipc:///tmp/smarty-jabber')
 
 if settings.SPEECH_RECOGNITION_ENABLED:
-    jusock = context.socket(zmq.REQ)
+    jucontext = zmq.Context()
+    jusock = jucontext.socket(zmq.REQ)
     jusock.connect('ipc:///tmp/smarty-julius')
 
-if settings.WEBSOCK_ENABLED:
-    websock = context.socket(zmq.REQ)
-    websock.connect('ipc:///tmp/smarty-websocket')
+#this part is not working yet
+# if settings.WEBSOCK_ENABLED:
+#     webcontext = zmq.Context()
+#     websock = webcontext.socket(zmq.REP)
+#     websock.connect('ipc:///tmp/smarty-websocket')
 
-msock = context.socket(zmq.REQ)
-msock.connect('ipc:///tmp/smarty-main')
-
+context = zmq.Context()
 bsock = context.socket(zmq.REQ)
 bsock.connect('ipc:///tmp/smarty-brain')
 response = {'text': "error", 'jmsg': 'error', 'type': 'response'}
-wsockets = []
 
+@atexit.register
+def goodbye():
+    if settings.SPEECH_RECOGNITION_ENABLED:
+        jusock.close()
+        jucontext.term()
+    if settings.JABBER_ENABLED:
+        jsock.close()
+        jcontext.term()
+    # if settings.WEBSOCK_ENABLED:
+    #     websock.close()
+    #     webcontext.term()
+    bsock.close()
+    context.term()
 
 def recursion_on_continue(response, ws, bsock, jsock):
     """
@@ -44,7 +58,6 @@ def recursion_on_continue(response, ws, bsock, jsock):
     # check if brain has to create another worker
     req_obj = response.get('req_obj', None)
     error = response.get('error', 0)
-    jresponse = None
     logger.info('recursion started "%s"', response)
 
     if req_obj:
@@ -52,6 +65,7 @@ def recursion_on_continue(response, ws, bsock, jsock):
         logger.info('request a new worker %s', req_obj)
         bsock.send_json(req_obj)
         bresponse = bsock.recv_json()
+        wresponse = None
 
         if isinstance(bresponse, dict):
             w = bresponse.get('worker', None)
@@ -62,23 +76,40 @@ def recursion_on_continue(response, ws, bsock, jsock):
                 p = Process(target=worker, kwargs=w)
                 p.start()
                 w['addr'] = 'ipc:///tmp/smarty-brain-worker-%d' % p.pid
+                context = zmq.Context()
                 ws = context.socket(zmq.REQ)
                 ws.connect(w['addr'])
                 ws.send_json({'cmd': 'run'})
 
                 logger.info('Start new worker process to work %s', w['addr'])
-                wresponse = ws.recv_json()
+
+                # set timeout
+                ws.setsockopt(zmq.LINGER, 0)
+                # use poll for timeouts:
+                poller = zmq.Poller()
+                poller.register(ws, zmq.POLLIN)
+                if poller.poll(5*1000):  # 5s timeout in milliseconds
+                    wresponse = ws.recv_json()
+                else:
+                    # raise IOError("Timeout processing worker request")
+                    logger.error('Worker %s did not respond in 5 seconds, kill' % w['addr'])
+                    # these are not necessary, but still good practice:
+                    ws.close()
+                    context.term()
+
                 if wresponse:
-                    #logger.info('Got response for new worker %s' % wresponse)
+                    # logger.info('Got response for new worker %s' % wresponse)
                     cont = wresponse.get('continue', None)
                     if cont:
                         logger.info('and recursion again % ', w['addr'])
                         return recursion_on_continue(
-                            wresponse, ws, bsock, jsock)
+                            wresponse, ws, bsock, jsock
+                        )
 
                     logger.info('Worker %s finished job', w['addr'])
                     ws.send_json({'cmd': 'terminate'})
                     ws.close()
+                    context.term()
                     return wresponse
 
         #@todo have to think deeper here
@@ -173,60 +204,12 @@ while True:
                     logger.info('last response was: %s', response)
                 break
 
-    #jusock.send_json({'response': 'ok'})
-
-    if settings.WEBSOCK_ENABLED:
-        # check activity in web
-        logger.info('Listening websocket %s', w['addr'])
-        web_request = websock.recv_json()
-        logger.info('Websocket request %s', web_request)
-
-        if web_request:
-            # send msg to brain listener
-            bsock.send_json(web_request)
-
-            # wait until brain will prepare worker
-            response = bsock.recv_json()
-            if isinstance(response, dict):
-                # check workers activity
-                workers = response.get('workers', None)
-                w = response.get('worker', None)
-                if w:
-                    w['addr'] = 'ipc:///tmp/smarty-brain-worker-'
-                    p = Process(target=worker, kwargs=w)
-                    p.start()
-                    w['addr'] = 'ipc:///tmp/smarty-brain-worker-%d' % p.pid
-                    ws = context.socket(zmq.REQ)
-                    ws.connect(w['addr'])
-                    ws.send_json({'cmd': 'run'})
-                    response = ws.recv_json()
-
-                    if isinstance(response, dict):
-                        cont = response.get('continue', None)
-                        # if worker can not complete result and needs
-                        # to continue dialog then start a recursion
-                        # if there are no "request" specified in response
-                        # from worker then
-                        # we work with the same worker otherwise
-                        # a new worker will be created
-                        # by worker 'request' in response
-                        if cont == 1:
-                            logger.info('Worker loops %s', w['addr'])
-                            response = recursion_on_continue(
-                                response, ws, bsock, websock)
-                        else:
-                            logger.info('Worker %s finished job', w['addr'])
-                            # stop worker's loop
-                            ws.send_json({'cmd': 'terminate'})
-                            ws.close()
-            else:
-                response = None
-
-            websock.send_json(response)
+        jusock.send_json({'response': 'ok'})
 
     if settings.JABBER_ENABLED:
         # check activity in jabber
         jabber_request = jsock.recv_json()
+        response = None
 
         if jabber_request:
             # logger.info('@@@@@@@@@@ main process has got new request from jabber : %s' % jabber_request)
@@ -236,7 +219,6 @@ while True:
 
             # wait until brain will prepare worker
             # @todo check the type of response
-            # while 1:
             response = bsock.recv_json()
             if isinstance(response, dict):
                 # check workers activity
@@ -271,8 +253,62 @@ while True:
                             logger.info('Worker %s finished job', w['addr'])
                             # stop worker's cycle
                             ws.send_json({'cmd': 'terminate'})
+                            logger.info('Close worker socket %s', ws)
                             ws.close()
-            else:
-                response = None
+        jsock.send_json(response)
 
-            jsock.send_json(response)
+# # this part is not working yet
+#     if settings.WEBSOCK_ENABLED:
+#         # check activity in web
+#         response = None
+#         web_request = websock.recv_json()
+#
+#         if not web_request:
+#             websock.send_json(response)
+#             continue
+#
+#         logger.info('Websocket request %s', web_request)
+#         continue
+#         # send msg to brain listener
+#         bsock.send_json(web_request)
+#
+#         # wait until brain will prepare worker
+#         response = bsock.recv_json()
+#         if not isinstance(response, dict):
+#             websock.send_json(response)
+#             continue
+#
+#         # check workers activity
+#         workers = response.get('workers', None)
+#         w = response.get('worker', None)
+#         if w:
+#             w['addr'] = 'ipc:///tmp/smarty-brain-worker-'
+#             p = Process(target=worker, kwargs=w)
+#             p.start()
+#             w['addr'] = 'ipc:///tmp/smarty-brain-worker-%d' % p.pid
+#             ws = context.socket(zmq.REQ)
+#             ws.connect(w['addr'])
+#             ws.send_json({'cmd': 'run'})
+#             response = ws.recv_json()
+#
+#             if isinstance(response, dict):
+#                 cont = response.get('continue', None)
+#                 # if worker can not complete result and needs
+#                 # to continue dialog then start a recursion
+#                 # if there are no "request" specified in response
+#                 # from worker then
+#                 # we work with the same worker otherwise
+#                 # a new worker will be created
+#                 # by worker 'request' in response
+#                 if cont == 1:
+#                     logger.info('Worker loops %s', w['addr'])
+#                     response = recursion_on_continue(
+#                         response, ws, bsock, websock)
+#                 else:
+#                     logger.info('Worker %s finished job', w['addr'])
+#                     # stop worker's loop
+#                     ws.send_json({'cmd': 'terminate'})
+#                     ws.close()
+#
+#         websock.send_json(response)
+

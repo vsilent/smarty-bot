@@ -5,15 +5,9 @@
 Description: save
 
 '''
-#import sys
-from core.people.person import Profile, Session, ProfileTimesheet
-from core.utils.sys.report import report_bug
-#from core.config import settings
+from core.people.person import Profile, Session
 from config.settings import logger
-#from core.lib.jabber.send_msg import SendMsgBot
-#from core.lib.jabber.connect.EchoBot import message
-#from core.lib.jabber.connect import xmpp
-import datetime
+#import datetime
 #import zmq
 
 
@@ -125,7 +119,7 @@ class Reaction:
         """docstring for on_continue"""
         todo = {}
         response = "Ok."
-        request = msg.get('request', None)
+        #request = msg.get('request', None)
         sender = msg.get('sender', '')
         req_from = msg.get('from', '')
         #error = msg.get('error', '')

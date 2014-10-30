@@ -8,7 +8,7 @@ import os
 from core.config.settings import logger
 from core.brain.main import Brain
 import zmq
-
+import atexit
 
 SERVICE_NAME = 'brain_listener'
 
@@ -18,14 +18,16 @@ sock = context.socket(zmq.REP)
 sock.bind( 'ipc:///tmp/smarty-brain' )
 empty = {'text': 'no response from smarty', 'jmsg': "sorry I don't know", 'type': 'response'}
 
-#logger.info( 'Brain listener is ready at %s and waits for request' % sock )
+
+@atexit.register
+def goodbye():
+    sock.close()
+    context.term()
+
 while True:
     _obj = sock.recv_json()
     if _obj:
         logger.info( '@@@@@@@@@@ Brain listener has got new request: %s' % _obj )
-        #res_obj = brain.react_on(req_obj)
-        #logger.info( 'Brain respond with: %s' % res_obj )
-        #logger.info('<<<<<<<<<< type of message %s' % _obj.get('type', None))
 
         try:
             request = _obj.get('request', None)
@@ -50,7 +52,6 @@ while True:
             logger.info( "It may have been an ascii-encoded unicode string")
 
 
-        logger.info( "continue ..........")
         brain = Brain()
         response = brain.react_on(_obj)
         if response:

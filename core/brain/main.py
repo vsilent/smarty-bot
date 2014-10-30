@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Primitive Brain :)
+Primitive Brain
 
 """
 import sys
@@ -11,7 +11,7 @@ import imp
 from core.utils.utils import Utils
 from unipath import Path
 from core.config import settings
-from core.config.settings import logger, ROBOT_DIR
+from core.config.settings import logger, ROBOT_DIR, REDIS
 from core.lib.wikipedia.search import search
 from core.lib.wikipedia.wiki import Wiki
 import re
@@ -19,17 +19,34 @@ import resource
 import subprocess
 from core.recognize import recognize_by_google
 from core.listen import listen, reset_input
-from broadcast import say
 from core.people.requests import save_users_request
+import redis
+import pickle
 
 
-def worker(**kwargs):
+def coolworker(**kwargs):
     sys.stdout.flush()
-    addr = kwargs.get('addr', None)
-    addr += str(os.getpid())
+    err = None
+    response = {'text': 'error happened'}
+
+    red = redis.Redis(
+        password=REDIS['password'],
+        unix_socket_path=REDIS['socket']
+    )
+
+    # socket for control worker
+    cmdaddr = kwargs.get('cmdaddr', None)
+
+    pid = str(os.getpid())
+    cmdaddr += pid
+
+    sid = kwargs.get('sid', None)
+
     context = zmq.Context()
-    socket = context.socket(zmq.REP)
-    socket.bind(addr)
+    # listen to commands for worker
+    worker_command_socket = context.socket(zmq.REP)
+    worker_command_socket.bind(cmdaddr)
+
     cmd_path = kwargs.get('cmd_path', '')
     fn = ROBOT_DIR.child('core', 'brain') + \
         '/' + '/'.join(cmd_path) + '/reaction.py'
@@ -37,45 +54,150 @@ def worker(**kwargs):
     try:
         rmod = Brain.load_from_file(fn)
     except IOError as e:
-        msg = socket.recv_json()
         response = {'text': 'uhm, I did not understand'}
         e.message = e.message + 'tryed to load %s' % fn
         logger.exception(e)
-        #ZMQError
+        context.term()
+        exit(0)
+    except Exception as e:
+        e.message = e.message + 'tryed to load %s' % fn
+        logger.exception(e)
+        context.term()
+        exit(0)
+
+    try:
+        react = rmod.Reaction('reserved', *{'arg': 'reserved'}, **kwargs)
+    except Exception as e:
+        logger.exception(e)
+        context.term()
+        exit(0)
+
+    # start worker server
+    while True:
+        msg = worker_command_socket.recv_json()
+        cmd = msg.get('cmd', None)
+        err = 'error happened.'
+        cont = None
+        response = {'text': err}
+        logger.info('cool worker got a message %s', msg)
+
+        if cmd == 'run':
+
+            # report status to "controller" socket
+            worker_command_socket.send_json({'process': 'started'})
+            worker_command_socket.close()
+            context.term()
+            logger.info('cool worker running....')
+            try:
+                response = react.run()
+            except Exception as e:
+                response = e.message()
+                logger.exception(e)
+
+            if isinstance(response, dict):
+                text = response.get('html', None)
+                if not text:
+                    text = response.get('text', None)
+                if text:
+                    res = pickle.dumps(response)
+                    red.set(sid, res)
+                    logger.info('%s responded with %s, write to redis %s',
+                                rmod, res, sid)
+
+            if not cont:
+                exit(0)
+
+        if cmd == 'on_continue':
+            worker_command_socket.send_json({'process': 'continue'})
+            try:
+                response = react.on_continue(msg)
+            except Exception as e:
+                logger.exception(e)
+                response = {'text': err}
+                logger.info('%s responded with %s, write to redis %s',
+                            rmod, res, sid)
+
+            if isinstance(response, dict):
+                text = response.get('html', None)
+                if not text:
+                    text = response.get('text', None)
+                if text:
+                    res = pickle.dumps(response)
+                    red.set(sid, res)
+
+            worker_command_socket.close()
+            context.term()
+
+        if cmd == 'terminate':
+            logger.info('worker %s closes %s and exits' % (
+                rmod, worker_command_socket
+            ))
+            worker_command_socket.send_json({'process': 'terminated'})
+            worker_command_socket.close()
+            context.term()
+            exit(0)
+    exit(0)
+
+
+def worker(**kwargs):
+    sys.stdout.flush()
+    err = None
+    response = {}
+    addr = kwargs.get('addr', None)
+    addr += str(os.getpid())
+    worker_context = zmq.Context()
+    worker_socket = worker_context.socket(zmq.REP)
+    worker_socket.bind(addr)
+    cmd_path = kwargs.get('cmd_path', '')
+    fn = ROBOT_DIR.child('core', 'brain') + \
+        '/' + '/'.join(cmd_path) + '/reaction.py'
+
+    try:
+        rmod = Brain.load_from_file(fn)
+    except IOError as e:
+        msg = worker_socket.recv_json()
+        response = {'text': 'uhm, I did not understand'}
+        e.message = e.message + 'tryed to load %s' % fn
+        logger.exception(e)
+        # ZMQError
         try:
-            socket.send_json(response)
+            worker_socket.send_json(response)
         except Exception as e:
-            pass
+            worker_context.term()
+            worker_socket.close()
         exit()
     except Exception as e:
-        msg = socket.recv_json()
+        msg = worker_socket.recv_json()
         response = {'text': 'uhm, I did not understand'}
         e.message = e.message + 'tryed to load %s' % fn
         logger.exception(e)
-        #ZMQError
+        # ZMQError
         try:
-            socket.send_json(response)
+            worker_socket.send_json(response)
         except Exception as e:
-            pass
+            worker_context.term()
+            worker_socket.close()
         exit()
 
     try:
         react = rmod.Reaction('reserved', *{'arg': 'reserved'}, **kwargs)
     except Exception as e:
-        msg = socket.recv_json()
+        msg = worker_socket.recv_json()
         response = {'text': 'uhm, I did not understand'}
         logger.exception(e)
-        #ZMQError
+        # ZMQError
         try:
-            socket.send_json(response)
+            worker_socket.send_json(response)
             exit()
         except Exception as e:
-            pass
+            worker_context.term()
+            worker_socket.close()
+        # worker_socket.close()
         exit()
 
-    #run worker server
+    # run worker server
     while True:
-        msg = socket.recv_json()
+        msg = worker_socket.recv_json()
         cmd = msg.get('cmd', None)
 
         if cmd == 'run':
@@ -114,6 +236,7 @@ def worker(**kwargs):
                 response = {'text': err}
 
             logger.info('%s responded with %s' % (rmod, response))
+            worker_socket.send_json(response)
 
         if cmd == 'on_continue':
             try:
@@ -121,13 +244,15 @@ def worker(**kwargs):
             except Exception as e:
                 logger.exception(e)
                 response = {'text': err}
+            worker_socket.send_json(response)
 
         if cmd == 'terminate':
-            socket.send_json(response)
-            break
-
-        socket.send_json(response)
-
+            logger.info('worker %s closes socket %s and exits',
+                        rmod, worker_socket)
+            worker_socket.send_json(response)
+            worker_socket.close()
+            worker_context.term()
+            exit()
     exit()
 
 
@@ -137,7 +262,6 @@ class Brain():
     req_obj = {}
     request = ''
     response = {}
-    context = None
     _dialog_stage = None
     _request_processed = False
     _continue_dialog = False
@@ -148,8 +272,6 @@ class Brain():
     _cmd_path = []
     _response = None
     cmd_stack = []
-#context argiments
-    cmd_args_stack = []
     _initiator = None
     _utils = Utils()
     sockets = {'output': '', 'worker': '', 'master': ''}
@@ -163,22 +285,23 @@ class Brain():
 
     def __init__(self, initiator=None):
 
-        #is not active by default
+        # is not active by default
         self.set_dialog_stage(0)
         self._initiator = initiator
         self.pid = os.getpid()
         self.context = zmq.Context()
 
-        self.sockets['output'] = self.context.socket(zmq.PUB)
-        self.sockets['output'].bind('ipc:///tmp/smarty-output')
+        #self.sockets['output'] = self.context.socket(zmq.PUB)
+        #self.sockets['output'].bind('ipc:///tmp/smarty-output')
 
-        self.sockets['master'] = self.context.socket(zmq.REP)
-        self.sockets['master'].connect('ipc:///tmp/smarty-brain-master-%d'
-                                       % self.pid)
+        #self.sockets['master'] = self.context.socket(zmq.REP)
+        #self.sockets['master'].connect('ipc:///tmp/smarty-brain-master-%d'
+                                       #% self.pid)
 
-        self.sockets['worker'] = self.context.socket(zmq.REQ)
-        self.sockets['worker'].connect('ipc:///tmp/smarty-brain-worker-%d'
-                                       % self.pid)
+        #self.sockets['worker'] = self.context.socket(zmq.REQ)
+        #self.sockets['worker'].connect('ipc:///tmp/smarty-brain-worker-%d'
+                                       #% self.pid)
+
 
     @staticmethod
     def setlimits():
@@ -234,7 +357,7 @@ class Brain():
         self._is_question = False
         self._request_processed = False
 
-    #return request
+    # return request
     @classmethod
     def react_on(self, req_obj):
         """
@@ -247,13 +370,12 @@ class Brain():
         self.req_obj = req_obj
         req_type = self.req_obj.get('type', '')
 
-        #todo
-        #if request object already include request type like is_question
-        #then skip request parsing and execute method directly
+        # todo
+        # if request object already include request type like is_question
+        # then skip request parsing and execute method directly
         req_types = ['is_question', 'is_command', 'is_greeting']
 
         if req_type in req_types:
-            #return eval(req_type, {"__builtins__":None})
             if 'is_question' == req_type:
                 return self.is_question(req_obj['request'])
             if 'is_command' == req_type:
@@ -270,21 +392,21 @@ class Brain():
 
         request = request.strip()
 
-        #are polite words in request ? cut them
+        # are polite words in request ? cut them
         request = self.remove_polite_words(request)
 
-        #Noise is usually recognized as "no no no no" text
-        #try to cut it from start and end
+        # Noise is usually recognized as "no no no no" text
+        # try to cut it from start and end
         if self._initiator == 'julius':
             request = self.remove_possible_noise_words(request)
             logger.info('sentense after cutting noise words: %s', request)
 
         self.request = request
 
-        #-------------------------------------------------------------->
-        #try to recognize name and simple answers like "yes"
-        #"no" by local application
-        #dialog not started, wait for greeting or name
+        # -------------------------------------------------------------->
+        # try to recognize name and simple answers like "yes"
+        # "no" by local application
+        # dialog not started, wait for greeting or name
 
         if self.get_dialog_stage() == 0 and self._initiator == 'julius':
             if request.startswith(settings.MY_NAME) or \
@@ -304,7 +426,7 @@ class Brain():
                     listen()
                     speech_recorded = True
                 except RuntimeError as e:
-                    say('Any Questions?')
+                    # say('Any Questions?')
                     reset_input()
                     speech_recorded = False
 
@@ -335,9 +457,9 @@ class Brain():
                     self.error(e)
 
                 if request_received:
-                    #first request can be greeting with answer in one file
-                    #result can be None or the rest part of
-                    #first request(greeings from beggining cut)
+                    # first request can be greeting with answer in one file
+                    # result can be None or the rest part of
+                    # first request(greeings from beggining cut)
                     rest = self.react_on(request_received)
                     logger.info("After robot's reaction")
                     logger.info("Stage: %d",
@@ -352,7 +474,7 @@ class Brain():
                     if self.get_dialog_stage() == 0:
                         logger.info("Skip dialog... restart")
                         break
-        #------------------------------------------>
+        # ------------------------------------------>
 
         if len(request) == 0:
             self.set_request_as_greeting()
@@ -370,26 +492,26 @@ class Brain():
                 request = request[:-1]
 
             self.set_request_as_question()
-            #look if there are no reaction modules or commands by this question
-            #continue search in internet or local database
+            # look if there are no reaction modules or commands by this question
+            # continue search in internet or local database
             return self.is_question(request)
 
-        #if not recognized than try to search it by google
-        #and get apropriate suggestion information
+        # if not recognized than try to search it by google
+        # and get apropriate suggestion information
         elif self.get_dialog_stage() == 1:
-            #logger.info('Sentense was not recognized,
-            #please try to repeat your question')
+            # logger.info('Sentense was not recognized,
+            # please try to repeat your question')
             self.set_dialog_stage(1)
             self.set_request_as_greeting()
             return self.is_question(request)
-        #if this is more then greeting
+        # if this is more then greeting
         else:
             sender = self.req_obj.get('sender', '')
-            #@todo data-sort-bot check the heap of requests, what is it, if an email whose and sort it ?
+            # @todo data-sort-bot check the heap of requests, what is it, if an email whose and sort it ?
             save_users_request(sender, request)
             self.response = {'text': 'got it.'}
 
-            #@todo ascii request
+            # @todo ascii request
             try:
                 request.decode('ascii')
             except UnicodeDecodeError as e:
@@ -419,8 +541,8 @@ class Brain():
             request = request[:-1]
 
         is_command = False
-        #@todo meet a problem when command has two or more words,
-        #need to check this also
+        # @todo meet a problem when command has two or more words,
+        # need to check this also
         command_list = request.split()
 
         path = Path(
@@ -433,18 +555,17 @@ class Brain():
             self._cmd_args = command_list
             self._cmd_path = []
 
-            #this method will try to find first full cmd
+            # this method will try to find first full cmd
             # after that one level up
             if path.isfile():
                 is_command = True
                 logger.info('Reaction file has been found at %s', self._cmd_path)
                 logger.info('Request is command .. continue')
                 # set something like  ['ping', 'my', 'sites']
-                #self._cmd_path = path.relative().parent.split('/')
                 self._cmd_path = self._cmd_args
 
-        #last added
-        #user defined script
+        # last added
+        # user defined script
         if path.isfile() and not is_command:
             logger.info('User defined reaction found at %s', path)
             is_command = True
@@ -483,9 +604,9 @@ class Brain():
             #================= extended commands section =============
         """
         path = self._utils.get_full_path_to_module_by_request(request)
-        #else parse words in first request  and try to find a reaction module
+        # else parse words in first request  and try to find a reaction module
 
-        #do not copy default module without confirming
+        # do not copy default module without confirming
         if not os.path.isfile(path + '/reaction.py') and \
            not self._continue_dialog:
             self._request_processed = False
@@ -514,7 +635,6 @@ class Brain():
         expected_class = 'Reaction'
         mod_name, file_ext = os.path.splitext(os.path.split(filepath)[-1])
         logger.debug(filepath)
-        logger.debug(mod_name)
 
         if file_ext.lower() == '.py':
             try:
@@ -573,31 +693,10 @@ class Brain():
         w['cmd_path'] = self._cmd_path
         w['cmd_args'] = self._cmd_args
         w['cmd_stack'] = self.cmd_stack
-        #self.workers.append(w)
+        # @todo
+        # self.workers.append(w)
         logger.info('is_command() worker %s ' % w)
         return {'type': 'response', 'worker': w}
-
-    @classmethod
-    def sock_response(self, _obj):
-        """docstring for listen_worker"""
-        context = zmq.Context()
-        socket = context.socket(zmq.REP)
-        socket.bind(_obj.get('addr'))
-        while True:
-            #listen to worker
-            response = socket.recv_json()
-            if response:
-                if response.get('continue') == 1 and \
-                   response.get('type') != '':
-                    self.attempt += 1
-                    logger.info('attempt %d' % self.attempt)
-                    if self.attempt > 5:
-                        logger.info('attempt %d' % self.attempt)
-                        break
-                    self.react_on(response)
-                return response
-        return {"text": "sorry, don't understand question",
-                "jmsg": "sorry, don't understand question"}
 
     @classmethod
     def is_question(self, text):
@@ -606,7 +705,7 @@ class Brain():
         text try to cut it from start and end
         check if question not empty after cutting polite words
         """
-        #logger.info("Got a new question: %s" % text)
+        # logger.info("Got a new question: %s" % text)
         if len(text) == 0:
             if self._initiator == 'julius':
                 self.response = {
@@ -722,7 +821,7 @@ class Brain():
         json_results = search(text_to_search)
         # now grep the results and find wiki info
         if not json_results:
-            say('OOPS, COULD NOT CONNECT GOOGLE')
+            #say('OOPS, COULD NOT CONNECT GOOGLE')
             return False
 
         _wiki = Wiki()
@@ -773,7 +872,7 @@ class Brain():
     def create_new_reaction(self, text):
         """docstring for create_new_reaction"""
         path = self._utils.get_full_path_to_module_by_request(text)
-        #make a copy of default reaction files
+        # make a copy of default reaction files
         if not os.path.isfile(path + '/reaction.py'):
             self._utils.copy_default_reaction_files(path + '/')
 
@@ -790,8 +889,14 @@ class Brain():
             ["python", rmod],
             preexec_fn=self.setlimits
         )
-        logger.info("CPU limit of parent(pid %d) after startup of child" % os.getpid(),
-                    resource.getrlimit(resource.RLIMIT_CPU))
+        logger.info(
+            "CPU limit of parent(pid %d) after startup of child %s",
+            os.getpid(),
+            resource.getrlimit(resource.RLIMIT_CPU)
+        )
         p.wait()
-        logger.info("CPU limit of parent(pid %d) after child finished executing" % os.getpid(),
-                    resource.getrlimit(resource.RLIMIT_CPU))
+        logger.info(
+            "CPU limit of parent(pid %d) after child finished executing",
+            os.getpid(),
+            resource.getrlimit(resource.RLIMIT_CPU)
+        )

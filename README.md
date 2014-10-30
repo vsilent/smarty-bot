@@ -1,7 +1,7 @@
 SmartyBot
 ==========
 
-SmartyBot is a xmpp (gtalk) bot written in python plus 0MQ lib. 
+SmartyBot is a xmpp (gtalk) bot written in python and using 0MQ lib. 
 <br>
 
 

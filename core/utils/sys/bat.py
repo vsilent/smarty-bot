@@ -1,61 +1,61 @@
-#
-# Copyright (C) 2007 Rico Schiekel (fire at downgra dot de)
-#
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-#
 # vim:syntax=python:sw=4:ts=4:expandtab
 
-import re
-#import logging
+from core.config.settings import logger
 import math
 
-from core.utils.utils import parse_file
-from core.config.settings import logger
+SYSINFO = '/sys/class/power_supply/'
+FILE_BAT_INFO = SYSINFO + 'BAT1'
+AC_ONLINE = SYSINFO + 'ACAD/online'
+ENERGY_FULL = FILE_BAT_INFO + '/energy_full'
+ENERGY_NOW = FILE_BAT_INFO + '/energy_now'
+POWER_NOW = FILE_BAT_INFO + '/energy_now'
+ALARM = FILE_BAT_INFO + '/alarm'
 
-FILE_BAT_INFO = '/proc/acpi/battery/CMB0/info'
-FILE_BAT_STATE = '/proc/acpi/battery/CMB0/state'
-FILE_AC = '/proc/acpi/ac_adapter/AC/state'
 
-RE_FULL_CAPACITY = re.compile(r'^last full capacity:\s+(?P<lastfull>\d+).*$')
-RE_REMAINING_CAPACITY = re.compile(r'^remaining capacity:\s+(?P<remain>\d+).*$')
-RE_PRESENT_RATE = re.compile(r'^present rate:\s+(?P<rate>\d+).*$')
-RE_AC_ONLINE = re.compile(r'^state:\s*(?P<state>on.line).*$')
+def interval():
+    return 5
 
 
 def info():
-    ac_vals = parse_file(FILE_AC, RE_AC_ONLINE)
-    bat_vals = parse_file([FILE_BAT_INFO, FILE_BAT_STATE], [RE_FULL_CAPACITY, RE_REMAINING_CAPACITY, RE_PRESENT_RATE])
-
     bat = '--'
-    ac = '--'
+    time_left = ''
+    status = ''
     try:
-        lastfull = float(bat_vals['lastfull'][0])
-        remain = float(bat_vals['remain'][0])
-        rate = float(bat_vals['rate'][0])
 
-        percent = math.floor(remain / lastfull * 100.0 + 0.5)
-        bat = '%d%%' % percent
+        with open(ENERGY_FULL) as eff:
+            energy_full = float(eff.read())
 
-        if ac_vals:
-            ac = '*AC*'
-        elif rate > 0:
-            mins = (3600.0 * (remain / rate)) / 60.0
-            hours = math.floor(mins / 60.0)
-            mins = math.floor(mins - (hours * 60.0))
-            ac = '%02d:%02d' % (hours, mins)
+        with open(ENERGY_NOW) as enf:
+            energy_now = float(enf.read())
+
+        with open(POWER_NOW) as pnf:
+            power_now = float(pnf.read())
+
+        with open(ALARM) as af:
+            alarm = float(af.read())
+
+        with open(AC_ONLINE) as aof:
+            ac_online = float(aof.read())
+
+
+        if power_now != 0:
+            #current_usage = power_now/1000000
+            time_left = ' %3.2f h ' % ( energy_now / power_now)
+            percent = math.floor( energy_now * 100 / energy_full )
+            bat = '%d%%' % percent
+
+            if percent < 25:
+                status = 'critical'
+            elif percent < 50:
+                status = 'medium'
+            else:
+                status = "normal"
+
+        if ac_online:
+            bat = 'AC'
+            time_left = ''
+
     except Exception as e:
         logger.exception(e)
 
-    return 'BAT: %s' % (' '.join((bat, ac)))
+    return 'BAT: %s%s %s' % ( bat, time_left , status )

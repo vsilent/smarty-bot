@@ -116,7 +116,7 @@ class Reaction:
     def run(self):
         """default method"""
 
-        response = 'I can order you a pizza, would you like one ?'
+        response = 'I can order a pizza for you, would you like some ?'
 
         if self.req_from == 'jabber':
             todo = {'text': response, 'jmsg': response, 'type': 'response'}

@@ -11,6 +11,7 @@ from core.people import person
 from core.config.settings import REDIS
 import redis
 
+import atexit
 
 """
     SleekXMPP: The Sleek XMPP Library
@@ -104,6 +105,7 @@ class EchoBot(sleekxmpp.ClientXMPP):
     sock = None
     nick = settings.MY_NAME
     _redis = None
+    context = None
     """
     A simple SleekXMPP bot that will echo messages it
     receives, along with a short thank you message.
@@ -133,12 +135,14 @@ class EchoBot(sleekxmpp.ClientXMPP):
             self.accept_direct_invite
         )
 
-        self._redis = redis.Redis(password=REDIS['password'],
-                        unix_socket_path=REDIS['socket'])
+        self._redis = redis.Redis(
+            password=REDIS['password'],
+            unix_socket_path=REDIS['socket']
+        )
 
         # send and listen commands
-        context = zmq.Context()
-        self.sock = context.socket(zmq.REQ)
+        self.context = zmq.Context()
+        self.sock = self.context.socket(zmq.REQ)
         self.sock.connect('ipc:///tmp/smarty-jabber')
  
     def start(self, event):
@@ -219,7 +223,7 @@ class EchoBot(sleekxmpp.ClientXMPP):
     def muc_presence(self, iq):
         """docstring for groupchat_presence"""
 
-        logger.info(">>>>>> groupchat presence worked, here we are in chat room %s", iq)
+        #logger.info(">>>>>> groupchat presence worked, here we are in chat room %s", iq)
         key = 'twitter_hourly'
         msg = self._redis.get(key)
         if msg:
@@ -354,6 +358,10 @@ if __name__ == '__main__':
     xmpp.register_plugin('xep_0004')  # Data Forms
     xmpp.register_plugin('xep_0060')  # PubSub
 
+    @atexit.register
+    def goodbye():
+        xmpp.sock.close()
+        xmpp.context.term()
 
     # If you are working with an OpenFire server, you may need
     # to adjust the SSL version used:

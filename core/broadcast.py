@@ -59,8 +59,9 @@ def play(text):
 
 def output(req_obj):
     """docstring for outp"""
-    context = zmq.Context()
-    sock = context.socket(zmq.PUB)
-    sock.bind('ipc:///tmp/smarty-output')
-    logger.info('Send to output %s' % req_obj)
-    req_obj = sock.send_json(req_obj)
+    pass
+    #context = zmq.Context()
+    #sock = context.socket(zmq.PUB)
+    #sock.bind('ipc:///tmp/smarty-output')
+    #logger.info('Send to output %s' % req_obj)
+    #req_obj = sock.send_json(req_obj)

@@ -7,6 +7,7 @@ Listen to other services which do not need text reply
 from core.config.settings import logger
 from core.brain.main import Brain
 import zmq
+import atexit
 
 
 SERVICE_NAME = 'get-the-facts'
@@ -17,10 +18,15 @@ which listens to a brain connector socket"""
 context = zmq.Context()
 sock = context.socket(zmq.REP)
 sock.bind('ipc:///tmp/smarty-brain')
-empty = {
+response = {
     'text': 'sorry did not get what you mean',
     'jmsg': "sorry I didn't get", 'type': 'response'
 }
+
+@atexit.register
+def goodbye():
+    sock.close()
+    context.term()
 
 while True:
     _obj = sock.recv_json()
@@ -33,21 +39,21 @@ while True:
                 request.encode('ascii')
         except UnicodeDecodeError as e:
             logger.info("it was not a ascii-encoded unicode string")
-            empty = {
+            response = {
                 'text': 'sorry, for now only english is supported, error was %s' % str(e)
                 ,'jmsg': "sorry, for now only english is supported, error was %s" % str(e),
                 'type': 'response'
             }
-            sock.send_json(empty)
+            sock.send_json(response)
             continue
         except UnicodeEncodeError as e:
             logger.info("it was not a ascii-encoded unicode string")
-            empty = {
+            response = {
                 'text': 'sorry, for now only english is supported, error was %s' % str(e),
                 'jmsg': "sorry, for now only english is supported, error was %s" % str(e),
                 'type': 'response'
             }
-            sock.send_json(empty)
+            sock.send_json(response)
             continue
         else:
             logger.info("It may have been an ascii-encoded unicode string")
@@ -57,8 +63,10 @@ while True:
             response = brain.react_on(_obj)
         except Exception as e:
             logger.exception(e)
+            response = {
+                'text': 'error happened %s' % str(e),
+                'jmsg': "error was %s" % str(e),
+                'type': 'response'
+            }
 
-        if response:
-            sock.send_json(response)
-        else:
-            sock.send_json(empty)
+        sock.send_json(response)

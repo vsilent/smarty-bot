@@ -1,48 +1,41 @@
-#
-# Copyright (C) 2007 Rico Schiekel (fire at downgra dot de)
-#
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-#
 # vim:syntax=python:sw=4:ts=4:expandtab
 
 import re
 from core.config.settings import logger
 from core.utils.utils import parse_file
 
-FILE_TEMP = '/proc/acpi/thermal_zone/TZ0/temperature'
-
-RE_CPU = re.compile(r'^cpu MHz\s*:\s*(?P<mhz>\d+).*$')
-RE_STATS = re.compile(r'^cpu  (?P<user>\d+) (?P<system>\d+) (?P<nice>\d+) (?P<idle>\d+).*$')
-RE_TEMP = re.compile(r'^temperature:\s*(?P<temp>\d+)\s+(?P<unit>.*)$')
-
-OLD_STATS = dict(user = 0, system = 0, nice = 0, idle = 0)
 
 def interval():
     return 2
 
 
-def info():
-    cpu_vals = parse_file('/proc/cpuinfo', RE_CPU)
-    stat_vals = parse_file('/proc/stat', RE_STATS)
-    temp_vals = parse_file(FILE_TEMP, RE_TEMP)
+SYSINFO = '/sys/class/thermal/'
+FILE_TEMP = SYSINFO + 'thermal_zone0/temp'
+RE_CPU = re.compile(r'^cpu MHz\s*:\s*(?P<mhz>\d+).*$')
+RE_STATS = re.compile(r'^cpu  (?P<user>\d+) (?P<system>\d+) (?P<nice>\d+) (?P<idle>\d+).*$')
+OLD_STATS = dict(user=0, system=0, nice=0, idle=0)
 
-    cpu = '--'
+
+def info():
+    #cpu_vals = parse_file('/proc/cpuinfo', RE_CPU)
+    stat_vals = parse_file('/proc/stat', RE_STATS)
+    temp_vals = ''
+    status = ''
+
     try:
-        cpu = '/'.join(cpu_vals['mhz'])
+        tf = open(FILE_TEMP)
+        temp_vals = int(tf.read()) / 1000
     except Exception, e:
         logger.exception(e)
+
+    tf.close()
+
+    #cpu = '--'
+
+    #try:
+        #cpu = '/'.join(cpu_vals['mhz'])
+    #except Exception as e:
+        #logger.exception(e)
 
     load = '--'
     try:
@@ -53,15 +46,24 @@ def info():
                  stat_vals['nice'] - OLD_STATS['nice'] + \
                  stat_vals['idle'] - OLD_STATS['idle']
         if dtotal > 0:
-            load = '%02d' % (100 - ((stat_vals['idle'] - OLD_STATS['idle']) * 100 / dtotal))
+            load = 100 - ((stat_vals['idle'] - OLD_STATS['idle']) * 100 / dtotal)
+            loadstr = '%02d' % (load)
+
+        if load > 50:
+            status = 'critical'
+        elif 20 < load < 50:
+            status = 'medium'
+        else:
+            status = 'normal'
+
         OLD_STATS.update(stat_vals)
-    except Exception, e:
+    except Exception as e:
         logger.exception(e)
 
-    temp = '--'
+    tempr = '--'
     try:
-        temp = '%02d %s' % (int(temp_vals['temp'][0]), temp_vals['unit'][0])
-    except Exception, e:
+        tempr = temp_vals
+    except Exception as e:
         logger.exception(e)
 
-    return 'CPU: %s%% temperature: [%s]' % (load, temp)
+    return 'CPU: %s%% temperature [%s] %s' % (loadstr, tempr, status)

@@ -7,7 +7,6 @@ from core.config import settings
 from core.config.settings import logger
 import subprocess
 import signal
-
 app_dir = os.path.normpath(os.path.join(os.getcwd(),
                                         os.path.dirname(__file__)))
 sys.path.append(os.path.dirname(app_dir))
@@ -84,7 +83,6 @@ if __name__ == '__main__':
         else:
             logger.info("Scheduler connector subprocess already running, skip...")
 
-
         opid = process_exists('core/output.py')
         if not opid:
             logger.info("Start output subprocess")
@@ -142,37 +140,25 @@ if __name__ == '__main__':
         #ask via jabber first
         apid = subprocess.Popen(
             ["python", "%s/core/brain/ask.py"
-                % settings.ROBOT_DIR]
+             % settings.ROBOT_DIR]
         )
 
-        #if settings.WEBSOCK_ENABLED:
-            #wspid = process_exists('http/app.py')
-            #if not wspid:
-                #logger.info('Start http subprocess '
-                            #+ "%s/http/app.py"
-                            #% settings.ROBOT_DIR)
-                #web_proc = subprocess.Popen(
-                    #["python", "%s/http/app.py"
-                     #% settings.ROBOT_DIR]
-                #)
-            #else:
-                #logger.info('web connector is already running, skip...')
-
-        #run main process
+        # run main process
         main_proc.communicate()
 
-
     except KeyboardInterrupt:
+
+
         # dpid = process_exists('source_direction')
         # logger.info( 'Stop sound source detector %s ', dpid )
         # os.kill(int(dpid), signal.SIGHUP)
 
         sid = process_exists('scheduler/at.py')
-        logger.info('Terminate scheduller connector process  %s ', jpid)
+        logger.info('Terminate scheduller connector process  %s ', sid)
         os.kill(int(sid), signal.SIGHUP)
 
         scid = process_exists('scheduler/connect.py')
-        logger.info('Terminate scheduler connector process  %s ', jpid)
+        logger.info('Terminate scheduler connector process  %s ', scid)
         os.kill(int(scid), signal.SIGHUP)
 
         jpid = process_exists('jabber/connect.py')

@@ -3,21 +3,26 @@
 from core.config.settings import logger
 from broadcast import say, play, bang
 import zmq
-
+import atexit
 
 SERVICE_NAME = 'output'
 
-"""start brain listener, which listens a lot of
-publishers except those who need response"""
-context = zmq.Context()
-sock = context.socket(zmq.SUB)
-sock.setsockopt(zmq.SUBSCRIBE, '')
+"""subscribe for a smarty output
+no need response"""
+out_context = zmq.Context()
+outsock = out_context.socket(zmq.SUB)
+outsock.setsockopt(zmq.SUBSCRIBE, '')
 
 for arg in ['ipc:///tmp/smarty-output']:
-    sock.connect(arg)
+    outsock.connect(arg)
+
+@atexit.register
+def goodbye():
+    outsock.close()
+    out_context.term()
 
 while True:
-    req_obj = sock.recv_json()
+    req_obj = outsock.recv_json()
     if req_obj:
         logger.info('Output: %s' % req_obj)
 
@@ -27,3 +32,6 @@ while True:
 
         if req_obj['play']:
             play(req_obj['play'])
+
+        if req_obj['jmsg']:
+            pass

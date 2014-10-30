@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Send command to Smarty</title>
+    <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
+    <script type="text/javascript" src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+    <style type="text/css" media="screen">
+    .bot-msg, .user-msg{
+      line-height: 12px;
+    }
+    .bot-msg span {
+      font-weight: bold;
+      color:red;
+    }
+    .user-msg span {
+      font-weight: bold;
+      color:blue;
+    }
+    #textarea{
+      overflow-y: auto;
+      height:300px;
+      width:100%;
+      background-color:white!important;
+    }
+    </style>
+    <script type="text/javascript" charset="utf-8">
+        $(document).ready(function(){
+            $("#emit_data").focus();
+            namespace = '/test'; // change to an empty string to use the global namespace
+
+            // the socket.io documentation recommends sending an explicit package upon connection
+            // this is specially important when using the global namespace
+            var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
+            socket.on('connect', function() {
+                socket.emit('my event', {data: 'I\'m connected!'});
+            });
+
+            // event handler for server sent data
+            // the data is displayed in the "Received" section of the page
+            socket.on('my response', function(msg) {
+              $("#textarea").append('<p class="clearfix bot-msg"><span>smarty</span>: ' + msg.data + '</p>').slideDown(function(){
+              $('#textarea').animate({ scrollTop: $("#textarea p:last").offset().top }, 50);
+            });
+            });
+
+            // handlers for the different forms in the page
+            // these send data to the server in a variety of ways
+            $('form#emit').submit(function(event) {
+              if ($('#emit_data').val() == ''){
+                return false;
+              }
+              $("#textarea").append('<p class="clearfix user-msg"><span>me</span>: ' + $('#emit_data').val() + '</p>').focus();
+                socket.emit('my event', {data: $('#emit_data').val()});
+                $('#textarea').animate({ scrollTop: $("#textarea p:last").offset().top }, 50);
+                $('#emit_data').val('');
+                return false;
+            });
+        });
+    </script>
+  </head>
+  <body>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-3">
+          <div style="margin-right: 0px; margin-top: 70px;" align="right">
+            <img src="http://static.webdirect.md/sm/images/robot.png" alt="" title="" class="" height="200" id="{}"/>
+          </div>
+        </div>
+        <div class="col-md-5">
+          <p>&nbsp;</p>
+          <p>&nbsp;</p>
+          <h3>Send me a command</h3>
+          <div id="textarea" class="well well-lg"></div>
+          <form id="emit" method='POST' action='#' role="form">
+            <div class="form-group">
+              <input type="text" name="emit_data" id="emit_data" placeholder="Command" style="width:90%;margin-right:5px;" class="form-control pull-left">
+              <input type="submit" value="Send" class="btn btn-success pull-left" style="">
+            </div>
+          </form>
+        </div>
+        <div class="col-md-3">
+          <div class="masthead" style="margin-top:5px;">
+            <ul class="nav nav-pills pull-right">
+              <li class="active"><a href="/authorize">Register</a></li>
+            </ul>
+          </div>
+        </div>
+    </div></div>
+    <footer class="pull-right">
+    <!--&copy; 2014 Site content licensed under <a href="http://creativecommons.org/licenses/by-sa/3.0/">cc-by-sa 3.0</a>-->
+    </footer>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js"></script>
+  </body>
+</html>

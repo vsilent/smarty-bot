@@ -35,25 +35,6 @@ class Reaction:
 
         self.response = ''
 
-    #@classmethod
-    #def run(self):
-        #"""default method"""
-
-        #if request.startswith(settings.GREETINGS) or(request.startswith('hi') and 'jabber' == self._initiator):
-            #self.set_dialog_stage(1)
-            ##try to remove greeting
-            #for word in settings.GREETINGS:
-                #if word in request:
-                    #request = request.replace(word, '')
-                    #break
-            #self.response = {'text': 'Hi, any command ? type "help"', 'continue': 1, 'type': 'response'}
-            #self.set_request_as_greeting()
-
-            #if self._initiator == 'julius':
-                #self.response['say'] = 'Hi'
-                #output(req_obj)
-
-            #return self.response
     @classmethod
     def run(self):
         """default method"""

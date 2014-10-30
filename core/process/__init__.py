@@ -16,14 +16,7 @@ class Daemon():
         context = zmq.Context()
         self.sock = context.socket(zmq.REP)
         self.sock.bind('ipc:///tmp/smarty-%s' % name)
-        #self.sock.connect('ipc:///tmp/smarty-%s' % name)
 
-        #self.bsock = context.socket(zmq.REQ)
-        #self.bsock.connect('ipc:///tmp/smarty-brain')
-        #self.response = {
-            #'text': "error",
-            #'jmsg': 'error',
-            #'type': 'response'}
 
     def start(self):
         while True:
