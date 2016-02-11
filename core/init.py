@@ -3,14 +3,16 @@
 
 import sys
 import os
-from core.config import settings
-from core.config.settings import logger
-import subprocess
-import signal
+
 app_dir = os.path.normpath(os.path.join(os.getcwd(),
                                         os.path.dirname(__file__)))
 sys.path.append(os.path.dirname(app_dir))
 sys.path.append(os.path.dirname(app_dir) + '/../')
+
+from core.config import settings
+from core.config.settings import logger
+import subprocess
+import signal
 
 
 def process_exists(process):

@@ -177,6 +177,7 @@ class EchoBot(sleekxmpp.ClientXMPP):
         """
 
         if msg['from'] != self.nick and msg['type'] != 'groupchat' and len(msg['body'].strip()) != 0:
+            pass
             # logger.info("received: %s from %s of type %s resource %s",
                         # msg['body'],
                         # msg['from'],
@@ -188,18 +189,18 @@ class EchoBot(sleekxmpp.ClientXMPP):
             self.roster[settings.MY_ACCOUNTS['gmail']['email']]
         )
 
-            self.sock.send_json({
-                'request': msg['body'],
-                             'from': SERVICE_NAME,
-                             'type': 'request',
-                'sender': str(msg['from'])
-            })
+        self.sock.send_json({
+            'request': msg['body'],
+                         'from': SERVICE_NAME,
+                         'type': 'request',
+            'sender': str(msg['from'])
+        })
 
         res_obj = self.sock.recv_json()
-            if isinstance(res_obj, dict):
-        # any string (the plain text message body)
-        msg['body'] = res_obj['text']
-        msg.reply("%(body)s" % msg).send()
+        if isinstance(res_obj, dict):
+            # any string (the plain text message body)
+            msg['body'] = res_obj['text']
+            msg.reply("%(body)s" % msg).send()
 
     def presence_available(self, iq):
         logger.info(">>>>>> chat presence, here is iq %s", iq)
