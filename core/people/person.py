@@ -74,7 +74,7 @@ profile_table = Table(
     Column('drink', String(16), nullable=True),
     Column('location_id', Integer(), nullable=True),
     Column('status', String(255), nullable=True),
-    Column('online', Integer(1), nullable=True),
+    Column('online', Integer(), nullable=True),
     mysql_engine='MyISAM',
     mysql_charset='utf8'
 )
@@ -239,7 +239,7 @@ profile_device_table = Table(
     'account_profile_device',
     metadata,
     Column('id', Integer, primary_key=True),
-    Column('device_id', Integer(255)),
+    Column('device_id', Integer()),
     mysql_engine='MyISAM',
     mysql_charset='utf8'
 )
@@ -278,7 +278,7 @@ country_table = Table(
     Column('name', String(80), nullable=False),
     Column('title', String(80), nullable=False),
     Column('iso3', String(3)),
-    Column('numcode', Integer(1)),
+    Column('numcode', Integer()),
     mysql_engine='MyISAM',
     mysql_charset='utf8')
 
