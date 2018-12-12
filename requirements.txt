@@ -4,7 +4,7 @@ Mako==0.9.0
 MarkupSafe==0.18
 MySQL-python==1.2.4
 PIL==1.1.7
-Pillow==2.1.0
+Pillow==5.3.0
 PyAudio==0.2.7
 PyYAML==3.10
 Pygments==1.6
@@ -42,11 +42,10 @@ oauth2==1.5.211
 oauthlib==0.4.2
 parallel==0.2.5
 parsedatetime==1.1.2
-pyOpenSSL==0.13
+pyOpenSSL==18.0
 pyasn1==0.1.7
 pyasn1-modules==0.0.5
 pycparser==2.10
-pycrypto==2.6
 pycurl==7.19.0
 pyflakes==0.7.3
 pygeoip==0.2.6
@@ -61,8 +60,6 @@ python-mimeparse==0.1.4
 python-twitter==1.0
 pyzmq==13.1.0
 redis==2.7.6
-requests==2.3.0
-requests-oauthlib==0.3.3
 simplejson==3.3.0
 six==1.3.0
 sleekxmpp==1.1.11
@@ -77,3 +74,6 @@ zmqpy==0.3.2
 Flask-Sockets
 flask-socketio
 flask-oauth
+pycrypto==2.6
+requests=2.21.0
+requests-oauthlib==1.0.0

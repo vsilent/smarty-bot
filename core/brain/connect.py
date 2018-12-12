@@ -8,16 +8,15 @@ from core.config.settings import logger
 import zmq
 
 
-global brainsock
-context = zmq.Context()
-brainsock = context.socket(zmq.REQ)
-# we will send commands to
-brainsock.connect('ipc:///tmp/smarty-brain')
-
-
 def react(req_obj):
-    """docstring for react"""
+
     global brainsock
+    context = zmq.Context()
+    brainsock = context.socket(zmq.REQ)
+    # we will send commands to
+    brainsock.connect('ipc:///tmp/smarty-brain')
+
+    """docstring for react"""
 
     while True:
         if req_obj:

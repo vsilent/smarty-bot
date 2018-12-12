@@ -119,7 +119,7 @@ logger.addHandler(hand)
 
 multiprocessing.log_to_stderr(logging.DEBUG)
 
-SPEECH_RECOGNITION_ENABLED = False
+SPEECH_RECOGNITION_ENABLED = True
 JABBER_ENABLED = True
 WEBSOCK_ENABLED = True
 
