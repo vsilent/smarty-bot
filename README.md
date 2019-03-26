@@ -17,6 +17,7 @@ Installation
 2. git clone https://github.com/vsilent/smarty-bot.git
 3. Edit core/config/settings.py
 4. Execute:  docker-compose up -d
+5. Create database with command: docker exec -t smarty python core/people/person.py
 
 
 Login to your personal gtalk account , find bot's gtalk contact and say hi.
