@@ -1,16 +1,13 @@
 SmartyBot
 ==========
 
-SmartyBot is a xmpp (gtalk) bot written in python and using 0MQ lib.
-It converts speech commands into python actions.
+SmartyBot is a xmpp (gtalk) chat bot written in python and uses 0MQ lib.
+It converts speech or chat commands into python actions.
 <br>
 
-
-It is also for those who just started to learn programming in Python.<br>
 For now it is just a very simple chat bot which can execute natural language commands.
-In the future it is going to be more than just a chat bot but execute natural language
-commands into real actions ( turn on lights, make coffee, open door, remind me etc. ) . <br>
-Plugins of other python bots out there can be imported easily and be organized nicely.
+It's more than just a chat bot it executes natural language commands into real actions 
+( turn on lights, make coffee, open door, remind me etc. ) . <br>
 
 
 Installation
@@ -21,10 +18,6 @@ Installation
 3. Edit core/config/settings.py
 4. Execute:  docker-compose up -d
 
-4. Set write permissions to var directory: chmod guo+w -R core/var/log/
-5. Create database structure:  <code>python core/people/person.py</code>
-
-Run app:   <code>python core/init.py</code>
 
 Login to your personal gtalk account , find bot's gtalk contact and say hi.
 
