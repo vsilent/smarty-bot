@@ -2,7 +2,7 @@ SmartyBot
 ==========
 
 SmartyBot is a xmpp (gtalk) bot written in python and using 0MQ lib.
-It converts speech commands to python actions.
+It converts speech commands into python actions.
 <br>
 
 
