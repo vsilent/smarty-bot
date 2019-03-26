@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y software-properties-common python-pip p
 WORKDIR /app
 COPY . /app
 COPY supervisord.conf /etc/supervisord.conf
-
+RUN chmod guo+w /app/core/var
 RUN pip install -r requirements.txt
 
 ENTRYPOINT ["python"]
