@@ -1,7 +1,7 @@
 About
 ==========
 
-smarty-bot is a http/websocket/xmpp(gtalk) chat bot written in python and uses 0MQ lib.
+smarty-bot is a http/websocket/xmpp(gtalk) chat bot written in python.
 It converts speech or chat commands into python actions.
 <br>
 
@@ -33,5 +33,3 @@ Programm your script.
 
 Check script by saving the file and asking bot:  <code>say hello to me </code>
 Your cool script will be executed.
-
-
