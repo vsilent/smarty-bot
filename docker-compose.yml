@@ -1,0 +1,50 @@
+version: "2.1"
+
+volumes:
+  db:
+    driver: local
+  redis-data:
+    driver: local
+
+services:
+
+  bot:
+      build: .
+      container_name: smarty
+      env_file: .env
+      restart: always
+      links:
+          - redis
+          - db
+      entrypoint: /usr/bin/supervisord -c /etc/supervisord.conf -n
+      volumes:
+          - .:/app
+          - ./settings.py:core/config/settings.py
+          - ./supervisord.conf:/etc/supervisord.conf
+
+  db:
+      image: mysql:5.7
+      environment:
+          MYSQL_ROOT_PASSWORD: smarty
+          MYSQL_DATABASE: smarty
+          MYSQL_USER: smarty
+          MYSQL_PASSWORD: smarty
+
+  redis:
+    container_name: redis
+    image: redis
+    restart: always
+    ports:
+        - 6379
+    sysctls:
+      net.core.somaxconn: 1024
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        tag: "container_{{.Name}}"
+    env_file: .env
+    volumes:
+        - redis-data:/data
+        - ./redis/rc.local:/etc/rc.local
+        - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
