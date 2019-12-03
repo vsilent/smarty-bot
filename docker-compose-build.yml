@@ -9,7 +9,7 @@ volumes:
 services:
 
   bot:
-      image: optimum/smarty
+      build: .
       container_name: smarty
       env_file: .env
       restart: always
@@ -23,6 +23,7 @@ services:
       volumes:
           - .:/app
           - ./supervisord.conf:/etc/supervisord.conf
+
   db:
       image: mysql:5.7
       env_file: .env
