@@ -1,6 +1,7 @@
 import sys
+
 if 'threading' in sys.modules:
-        raise Exception('threading module loaded before patching!')
+    raise Exception('threading module loaded before patching!')
 import gevent.monkey; gevent.monkey.patch_thread()
 
 from threading import Thread
@@ -8,7 +9,8 @@ from multiprocessing import Process
 
 import time
 from flask import Flask, render_template, session
-from flask.ext.socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit
+from urllib2 import Request, urlopen, URLError
 import logging
 from os.path import abspath, dirname
 import sys
@@ -16,6 +18,7 @@ import zmq
 import atexit
 from flask import redirect, url_for
 from flask_oauth import OAuth
+
 sys.path.append(abspath(dirname(abspath(__file__)) + '../../'))
 from core.brain.main import Brain, coolworker
 import redis
@@ -51,12 +54,11 @@ google = oauth.remote_app(
 def background_thread(sid):
     """Example of how to send server generated events to clients."""
     count = 0
+
     def texit():
         sys.exit(0)
 
-    red = redis.Redis(
-        password=app.config['REDIS']['password'],
-        unix_socket_path=app.config['REDIS']['socket'])
+    red = redis.Redis(host=app.config['REDIS']['host'])
 
     while True:
         time.sleep(1)
@@ -118,7 +120,7 @@ def message(message):
         'cmd_path': message['data'].split(),
         'cmd_args': message['data'],
         'sender': '',  # can be set to email
-        'uuid': '',     # uuid of local database
+        'uuid': '',  # uuid of local database
         # use session for output socket
         'sid': int(session.get('id'))
     }
@@ -145,7 +147,7 @@ def message(message):
     logging.info('worker session %s', int(session.get('id')))
     w['sid'] = int(session.get('id'))
     w['cmdaddr'] = 'ipc:///tmp/smarty-worker-input-'
-    #w['addr'] = 'ipc:///tmp/smarty-worker-output-%d' % int(session.get('id'))
+    # w['addr'] = 'ipc:///tmp/smarty-worker-output-%d' % int(session.get('id'))
     p = Process(target=coolworker, kwargs=w)
     p.start()
     w['cmdaddr'] = 'ipc:///tmp/smarty-worker-input-%d' % p.pid
@@ -164,10 +166,10 @@ def message(message):
     wis.send_json({'cmd': 'run'}, zmq.NOBLOCK)
 
     response = None
-    if poller.poll(5*1000):  # 5s timeout in milliseconds
-            state = wis.recv_json()
-            if state:
-                logging.info('worker status %s', state)
+    if poller.poll(5 * 1000):  # 5s timeout in milliseconds
+        state = wis.recv_json()
+        if state:
+            logging.info('worker status %s', state)
     else:
         wis.close()
         context.term()
@@ -179,7 +181,6 @@ def message(message):
         )
 
 
-
 @socketio.on('connect', namespace='/test')
 def connect():
     emit('my response', {'data': 'I am listenning..', 'count': 0})
@@ -189,7 +190,6 @@ def connect():
 def test_disconnect():
     del session['id']
     print('Client disconnected')
-    #return redirect(url_for('index'))
 
 
 @app.route('/authorize')
@@ -199,16 +199,15 @@ def authorize():
         return redirect(url_for('login'))
 
     access_token = access_token[0]
-    from urllib2 import Request, urlopen, URLError
 
-    headers = {'Authorization': 'OAuth '+access_token}
+    headers = {'Authorization': 'OAuth ' + access_token}
     req = Request(
         'https://www.googleapis.com/oauth2/v1/userinfo',
         None, headers
     )
     try:
         res = urlopen(req)
-    except URLError, e:
+    except URLError as e:
         if e.code == 401:
             # Unauthorized - bad token
             session.pop('access_token', None)
@@ -236,5 +235,6 @@ def authorized(resp):
 def get_access_token():
     return session.get('access_token')
 
+
 if __name__ == '__main__':
-    socketio.run(app, host="192.168.1.110", port=8000)
+    socketio.run(app, host="0.0.0.0", port=80)

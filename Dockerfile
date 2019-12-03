@@ -1,5 +1,5 @@
-FROM ubuntu:18.04
-LABEL maintainer="vasili.pascal@try.direct"
+FROM ubuntu:19.04
+LABEL maintainer="vasili.pascal@smarty.run"
 
 # no tty for container
 ENV DEBIAN_FRONTEND noninteractive

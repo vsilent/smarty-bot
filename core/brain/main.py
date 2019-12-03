@@ -30,8 +30,9 @@ def coolworker(**kwargs):
     response = {'text': 'error happened'}
 
     red = redis.Redis(
-        password=REDIS['password'],
-        unix_socket_path=REDIS['socket']
+        host=REDIS['host']
+        # password=REDIS['password'],
+        # unix_socket_path=REDIS['socket']
     )
 
     # socket for control worker

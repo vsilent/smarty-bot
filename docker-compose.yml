@@ -17,21 +17,19 @@ services:
           - redis
           - db
       entrypoint: /usr/bin/supervisord -c /etc/supervisord.conf -n
+      ports:
+        - 80:80
+        - 8000:8000
       volumes:
           - .:/app
-          - ./settings.py:core/config/settings.py
           - ./supervisord.conf:/etc/supervisord.conf
 
   db:
       image: mysql:5.7
-      environment:
-          MYSQL_ROOT_PASSWORD: smarty
-          MYSQL_DATABASE: smarty
-          MYSQL_USER: smarty
-          MYSQL_PASSWORD: smarty
+      env_file: .env
 
   redis:
-    container_name: redis
+    container_name: smarty_redis
     image: redis
     restart: always
     ports:

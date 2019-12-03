@@ -7,8 +7,8 @@ from unipath import Path
 DEBUG = True
 
 REDIS = {
-    'socket': '/var/run/redis/redis.sock',
-    'password': 'test'
+    'host': 'redis',
+    # 'password': 'test'
 }
 
 CACHE_TIMEOUT = 300
@@ -29,8 +29,7 @@ SECRET_KEY = 'hereisyoursecretkey'
 # https://code.google.com/apis/console
 GOOGLE_CLIENT_ID = ''
 GOOGLE_CLIENT_SECRET = ''
-REDIRECT_URI = ''  # one of the Redirect URIs from Google APIs console
-
+REDIRECT_URI = '/'  # one of the Redirect URIs from Google APIs console
 
 SQLALCHEMY_DATABASE_URI = 'mysql+mysqldb://root:root@localhost/smarty'
 DATABASE_CONNECT_OPTIONS = {}

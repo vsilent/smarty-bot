@@ -19,8 +19,9 @@ MY_ACCOUNTS = {'gmail': {'email': 'bot@gmail.com',
                          'password': 'botpassword'}}
 
 REDIS = {
-    'password': 'test',
-    'socket': '/var/run/redis/redis.sock'
+    'host': 'redis',
+    # 'password': 'test',
+    # 'socket': '/var/run/redis/redis.sock'
 }
 
 GOOGLE = {

@@ -5,10 +5,10 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Send command to Smarty</title>
-    <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
-    <script type="text/javascript" src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+    <script type="text/javascript" src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
     <style type="text/css" media="screen">
     .bot-msg, .user-msg{
       line-height: 12px;
@@ -35,7 +35,7 @@
 
             // the socket.io documentation recommends sending an explicit package upon connection
             // this is specially important when using the global namespace
-            var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
+            var socket = io.connect('http://localhost/test');
             socket.on('connect', function() {
                 socket.emit('my event', {data: 'I\'m connected!'});
             });
@@ -78,7 +78,7 @@
           <div id="textarea" class="well well-lg"></div>
           <form id="emit" method='POST' action='#' role="form">
             <div class="form-group">
-              <input type="text" name="emit_data" id="emit_data" placeholder="Command" style="width:90%;margin-right:5px;" class="form-control pull-left">
+              <input type="text" name="emit_data" id="emit_data" placeholder="Command" style="width:85%;margin-right:5px;" class="form-control pull-left">
               <input type="submit" value="Send" class="btn btn-success pull-left" style="">
             </div>
           </form>
@@ -94,6 +94,6 @@
     <footer class="pull-right">
     <!--&copy; 2014 Site content licensed under <a href="http://creativecommons.org/licenses/by-sa/3.0/">cc-by-sa 3.0</a>-->
     </footer>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.slim.js"></script>
   </body>
 </html>
