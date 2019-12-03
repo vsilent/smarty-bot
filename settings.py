@@ -11,11 +11,11 @@ from unipath import Path
 
 MY_NAME = 'smarty'
 
-#for session
+# for session
 SECRET_KEY = 'yoursecretkeytypeanystring'
 
-#Robot's gmail account
-MY_ACCOUNTS = {'gmail': {'email': 'bot@gmail.com',
+# Robot's gmail account
+MY_ACCOUNTS = {'gmail': {'email': 'smarty',
                          'password': 'botpassword'}}
 
 REDIS = {
@@ -29,7 +29,6 @@ GOOGLE = {
     'google_app_name': 'googleappname',
     'google_app_password': 'googleapppassword',
 }
-
 
 TWITTER = {
     'consumer_key': '',
@@ -58,7 +57,7 @@ SUGARCRM = {
     'username': '',
     'password': ''
 }
-#database
+# database
 DB = 'mysql+mysqldb://smarty:smarty@db/smarty'
 
 PEOPLE = {
@@ -77,7 +76,6 @@ CONFIG_DIR = ROBOT_DIR.child('core', 'config')
 TMP_DIR = '/tmp'
 DEMO_MUSIC_DIR = ROBOT_DIR + '/music/'
 
-
 FREEBASE = {
     "api_key": ''
 }
@@ -85,7 +83,7 @@ FREEBASE = {
 if not os.path.exists(LOG_DIR):
     os.makedirs(LOG_DIR)
 
-#try to create log file
+# try to create log file
 file = open('%s/message.log' % LOG_DIR, 'w+')
 
 # Make a global logging object.
@@ -104,14 +102,14 @@ smtp_handler = logging.handlers.SMTPHandler(
     fromaddr=MY_ACCOUNTS['gmail']['email'],
     toaddrs=PEOPLE['admin']['email'],
     subject=u"%s error!" % MY_NAME,
-    credentials = (
+    credentials=(
         MY_ACCOUNTS['gmail']['email'],
         MY_ACCOUNTS['gmail']['password']
     ),
     secure=()
 )
 
-#inform about exceptions only
+# inform about exceptions only
 smtp_handler.setLevel(logging.ERROR)
 logger.addHandler(smtp_handler)
 logger.addHandler(hand)
@@ -124,13 +122,13 @@ WEBSOCK_ENABLED = True
 
 APP_DIRS = {
     'config_dir': CONFIG_DIR
-    ,'lib_dir': CONFIG_DIR + "/../lib/"
-    ,'app_dir': CONFIG_DIR + "/../"
-    ,'tmp_input_audio_dir': CONFIG_DIR  + "/../tmp/input/audio/"
-    ,'tmp_output_audio_dir': CONFIG_DIR  + "/../tmp/output/audio/"
-    ,'tmp_input_video_dir': CONFIG_DIR  + "/../tmp/input/video/"
-    ,'audio_dir': CONFIG_DIR  + "/../var/dict/audio/"
-    ,'brain_modules_dir': CONFIG_DIR  + "/../brain/"
+    , 'lib_dir': CONFIG_DIR + "/../lib/"
+    , 'app_dir': CONFIG_DIR + "/../"
+    , 'tmp_input_audio_dir': CONFIG_DIR + "/../tmp/input/audio/"
+    , 'tmp_output_audio_dir': CONFIG_DIR + "/../tmp/output/audio/"
+    , 'tmp_input_video_dir': CONFIG_DIR + "/../tmp/input/video/"
+    , 'audio_dir': CONFIG_DIR + "/../var/dict/audio/"
+    , 'brain_modules_dir': CONFIG_DIR + "/../brain/"
 }
 
 PLAYER_PATH = '/usr/bin/mplayer'
@@ -148,16 +146,14 @@ for lib in INSTALLED_LIBS:
         os.path.dirname(APP_DIRS['lib_dir'] + lib + '/')
     )
 
-
 DEVICES = {
     # Your capture device, use arecord -L to retrieve the one you use
     'audio_input': "default",
     'audio_output': "default"
 }
 
-
-#greetings must be a tuple
-#will be moved to separate dictionary or refactored later
+# greetings must be a tuple
+# will be moved to separate dictionary or refactored later
 GREETINGS = (
     'hello'
     , 'Hello'
@@ -168,86 +164,86 @@ GREETINGS = (
     , 'good afternoon'
     , 'good day'
     , 'good evening'
-    , 'hello'+ MY_NAME
-    , 'hey '+ MY_NAME
+    , 'hello' + MY_NAME
+    , 'hey ' + MY_NAME
 )
 
-#will be moved to separate dictionary or refactored later
+# will be moved to separate dictionary or refactored later
 S_QUESTIONS = (
     "what"
-    ,"what is"
-    ,"what are"
-    ,"where is"
-    ,"where are"
-    ,"where he"
-    ,"where you"
-    ,"where"
-    ,"where it"
-    ,"who is"
-    ,"who are"
-    ,"who"
-    ,"whose is"
-    ,"whose are"
-    ,"whose"
-    ,"which is"
-    ,"which are"
-    ,"which"
-    ,"was it"
-    ,"was she"
-    ,"was he"
-    ,"was"
-    ,"wasn't"
-    ,"how"
-    ,"when"
-    ,"were"
-    ,"why"
-    ,"do"
-    ,"don't"
-    ,"did"
-    ,"didn't"
-    ,"does"
-    ,"doesn't"
-    ,"have"
-    ,"haven't"
-    ,"had"
-    ,"hadn't"
-    ,"has"
-    ,"hasn't"
-    ,"can"
-    ,"can't"
-    ,"could"
-    ,"couldn't"
-    ,"are"
-    ,"is"
-    ,"isn't"
-    "aren't" )
+    , "what is"
+    , "what are"
+    , "where is"
+    , "where are"
+    , "where he"
+    , "where you"
+    , "where"
+    , "where it"
+    , "who is"
+    , "who are"
+    , "who"
+    , "whose is"
+    , "whose are"
+    , "whose"
+    , "which is"
+    , "which are"
+    , "which"
+    , "was it"
+    , "was she"
+    , "was he"
+    , "was"
+    , "wasn't"
+    , "how"
+    , "when"
+    , "were"
+    , "why"
+    , "do"
+    , "don't"
+    , "did"
+    , "didn't"
+    , "does"
+    , "doesn't"
+    , "have"
+    , "haven't"
+    , "had"
+    , "hadn't"
+    , "has"
+    , "hasn't"
+    , "can"
+    , "can't"
+    , "could"
+    , "couldn't"
+    , "are"
+    , "is"
+    , "isn't"
+      "aren't")
 
 E_QUESTIONS = (
     "are you"
-    ,"aren't you"
-    ,"do i"
-    ,"do you"
-    ,"do we"
-    ,"do they"
-    ,"does she"
-    ,"does he"
-    ,"does it"
-    ,"doesn't it"
-    ,"doesn't he"
-    ,"doesn't she"
-    ,"don't you"
-    ,"have you"
-    ,"have we"
-    ,"have they"
-    ,"have it"
-    ,"haven't you"
-    ,"are they"
-    ,"isn't you"
-    ,"did you"
-    ,"didn't you"
+    , "aren't you"
+    , "do i"
+    , "do you"
+    , "do we"
+    , "do they"
+    , "does she"
+    , "does he"
+    , "does it"
+    , "doesn't it"
+    , "doesn't he"
+    , "doesn't she"
+    , "don't you"
+    , "have you"
+    , "have we"
+    , "have they"
+    , "have it"
+    , "haven't you"
+    , "are they"
+    , "isn't you"
+    , "did you"
+    , "didn't you"
 )
 
-#common polite questions
+# common polite questions
 POLITE = (
     'whould you mind',
     'could you please',
@@ -261,10 +257,10 @@ POLITE = (
     MY_NAME.lower()
 )
 
-#actually this is the weak place in command recognition mechanism
-#if you have some better ideas we would really appreciate to hear them
-#these are simple commands that will be executed by
-#first word in requested sentense like "say hello"
+# actually this is the weak place in command recognition mechanism
+# if you have some better ideas we would really appreciate to hear them
+# these are simple commands that will be executed by
+# first word in requested sentense like "say hello"
 
 #  This tuple still exists because I did not have time to make it better.
 #  It contains commands that have arguments.
@@ -379,7 +375,7 @@ EMBEDDED_COMMANDS = (
     , 'alert me'
     , 'who is'
     , "whois"
-    , 'delete link'  #  because after delete link an argument follows, like: delete link mysite.com
+    , 'delete link'  # because after delete link an argument follows, like: delete link mysite.com
     , 'delete url'
     , 'delete site url'
     , 'remove url'
@@ -387,7 +383,7 @@ EMBEDDED_COMMANDS = (
     , 'remove link'
     , 'remove'
     , 'find'
-    )
+)
 
 MSG_ME = (
     'remind me with message',

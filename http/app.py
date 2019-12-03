@@ -124,19 +124,18 @@ def message(message):
         # use session for output socket
         'sid': int(session.get('id'))
     }
-    w = None
 
+    b = Brain()
     try:
-        b = Brain()
         response = b.react_on(req)
     except Exception as e:
-        logging.exception(e)
         emit(
             'my response', {
                 'data': 'sorry, could not process request %s ' % message['data'],
                 'count': session['receive_count']
             }
         )
+        logging.exception(e)
 
     # init worker
     w = response.get('worker', None)
@@ -147,7 +146,6 @@ def message(message):
     logging.info('worker session %s', int(session.get('id')))
     w['sid'] = int(session.get('id'))
     w['cmdaddr'] = 'ipc:///tmp/smarty-worker-input-'
-    # w['addr'] = 'ipc:///tmp/smarty-worker-output-%d' % int(session.get('id'))
     p = Process(target=coolworker, kwargs=w)
     p.start()
     w['cmdaddr'] = 'ipc:///tmp/smarty-worker-input-%d' % p.pid
@@ -162,10 +160,8 @@ def message(message):
     poller = zmq.Poller()
     poller.register(wis, zmq.POLLIN)
 
-    # logging.info("worker started, waiting for response %s", w)
     wis.send_json({'cmd': 'run'}, zmq.NOBLOCK)
 
-    response = None
     if poller.poll(5 * 1000):  # 5s timeout in milliseconds
         state = wis.recv_json()
         if state:
@@ -189,7 +185,7 @@ def connect():
 @socketio.on('disconnect', namespace='/test')
 def test_disconnect():
     del session['id']
-    print('Client disconnected')
+    logging.info('Client disconnected')
 
 
 @app.route('/authorize')
@@ -205,16 +201,17 @@ def authorize():
         'https://www.googleapis.com/oauth2/v1/userinfo',
         None, headers
     )
+    response = None
     try:
         res = urlopen(req)
+        response = res.read()
     except URLError as e:
         if e.code == 401:
             # Unauthorized - bad token
             session.pop('access_token', None)
-            return redirect(url_for('login'))
-        return res.read()
+            response = redirect(url_for('login'))
+    return response
 
-    return res.read()
 
 
 @app.route('/login')
