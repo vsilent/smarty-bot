@@ -5,7 +5,7 @@ smarty-bot is a http/websocket/xmpp(gtalk) chat bot written in python.
 It converts speech or chat commands into python actions.
 <br>
 
-It's going to be more than just a chat bot, it executes natural language commands into real actions
+It's going to be more than just a chat bot, it converts chat/speech commands into real actions
 ( turn on lights, make coffee, open door, remind me etc. ) . <br>
 
 
